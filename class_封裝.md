@@ -25,8 +25,8 @@ class 的宣告與 C 中的結構宣告非常類似，以 class 為開頭，再�
 class Student {
    public:
     int ID;
-    void showName() {std::cout << name << std::endl;};
-    void setName(std::string _name) {name = _name};
+    void showName() { std::cout << name << std::endl; };
+    void setName(std::string _name) { name = _name; };
    private:
     std::string name;
 };
@@ -91,8 +91,8 @@ int main()
 class Student {
    public:
     int ID;
-    void showName() {std::cout << name << std::endl;};
-    void setName(std::string _name) {name = _name;};
+    void showName() { std::cout << name << std::endl; };
+    void setName(std::string _name) { name = _name; };
    private:
     std::string name;
 };
@@ -100,8 +100,8 @@ class Student {
 class Teacher {
    public:
     std::string subject;
-    void showName() {std::cout << name << std::endl;};
-    void setName(std::string _name) {name = _name;};
+    void showName() { std::cout << name << std::endl; };
+    void setName(std::string _name) { name = _name; };
    private:
     std::string name;
 };
@@ -128,13 +128,13 @@ int main()
 ```cpp
 class Student {
    public:
-    Student(int ID){std::cout << "constructor Student" << std::endl;};
+    Student(int ID) { std::cout << "constructor Student" << std::endl; };
     // 建構子
-    ~Student(){std::cout << "destructor Student" << std::endl;};
+    ~Student() { std::cout << "destructor Student" << std::endl; };
     // 解構子
     int ID;
-    void showName() {std::cout << name << std::endl;};
-    void setName(std::string _name) {name = _name};
+    void showName() { std::cout << name << std::endl; };
+    void setName(std::string _name) { name = _name; };
    private:
     std::string name;
 };
@@ -151,7 +151,7 @@ class Student {
     double score;
    public:
     Student(int _id, int _gender, std::string _name, double _score);
-    void get(){std::cout << ID << " " << gender << " " << name  << " " << score << std::endl;}
+    void get() { std::cout << ID << " " << gender << " " << name  << " " << score << std::endl; }
 };
 
 Student::Student(int _id, int _gender, std::string _name, double _score)
