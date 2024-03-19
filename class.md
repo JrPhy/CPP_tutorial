@@ -68,6 +68,7 @@ int main() {
     Mary.score = 88.88;
 }
 ```
+當然也可以在宣告類別時就直接給值，但就無法像結構那樣直接初始化，而且對於之後的使用也需要在去做修改，所以通常會在類別內宣告一個建構子來做初始化。
 #### 2. 成員函數實作
 而在 C++ 中的 class 與 struct 成員都可以有函數宣告，函數的實作可以在 class 外也可以在 class 內。
 ```cpp
@@ -144,7 +145,7 @@ class Student {
 #include <string>
 #include <iostream>
 class Student {
-    const int ID;
+    int ID;
     int gender;
     std::string name;
     double score;
@@ -163,3 +164,91 @@ int main()
     return 0;
 }
 ```
+因為皆為私有變數，也沒有一個接口可以去修改這些變數，所以被初始化後就無法再修改了。要注意在做初始化時仍是按照類別內的變數順序做初始化，所以在建構時也需要注意順序，下方為一個初始化錯誤的例子
+```cpp
+#include <string>
+#include <iostream>
+class Student {
+    int ID;
+    int gender;
+    std::string name;
+    double score;
+   public:
+    Student(int _id, int _gender, std::string _name, double _score);
+    void get(){std::cout << ID << " " << gender << " " << name  << " " << score << std::endl;}
+};
+
+Student::Student(int _id, int _gender, std::string _name, double _score)
+        :gender(_gender), ID(gender),  name(_name), score(_score) {}
+
+int main()
+{
+    Student Peter(10039, 1, "Peter", 88.88);
+    Peter.get();
+    return 0;
+}
+```
+上方例子雖然是 gender 寫在前方，但是因為類別內的變數是 ID 寫在前方，此時 gender 尚未被初始化，所以 ID 就會被初始化為 0。
+
+#### 2. this 指標
+一般來說函數引數的名稱會盡量明顯讓使用者知道，而私有成員變數名稱也會盡量明顯讓開發者知道，此時如果要用函數來改變私有變數，就有可能會遇到狀名的問題。一個解法就是在其中一個名稱前或後加上底線，另一個則是用 this 指標
+```cpp
+#include <string>
+#include <iostream>
+class Student {
+    int ID;
+    int gender;
+    std::string name;
+    double score;
+   public:
+    Student(int _id, int _gender, std::string _name, double _score);
+    void get(){std::cout << ID << " " << gender << " " << name  << " " << score << std::endl;}
+    void setScore(double score) { this->score = score; }
+};
+
+Student::Student(int _id, int _gender, std::string _name, double _score)
+        :gender(_gender), ID(gender), name(_name), score(_score) {}
+
+int main()
+{
+    Student Peter(10039, 1, "Peter", 88.88);
+    Peter.get();
+    Peter.setScore(95.8);
+    Peter.get();
+    return 0;
+}
+```
+#### 3. 解構子
+在 C/C++ 中如果沒有使用到 new/malloc，那麼在程式結束後記憶體會自動釋放，如果有的話就需要自行去做 delete/free。一個類別中如果有使用到 new/malloc，在解構時就需要有寫 delete/free 來釋放記憶體。
+```cpp
+#include <string>
+#include <iostream>
+class Student {
+    int ID;
+    int gender;
+    int *rank;
+    std::string name;
+    double score;
+   public:
+    Student(int _id, int _gender, std::string _name, double _score);
+    ~Student() { std::cout << " ~Student() " <<std::endl; delete rank;};
+    void get(){ std::cout << ID << " " << gender << " " << name  << " " << score << std::endl; }
+    void SetRank(int rank) { *(this->rank) = rank; }
+    int GetRank() { return *rank; }
+};
+
+Student::Student(int _id, int _gender, std::string _name, double _score)
+        :gender(_gender), ID(gender),  name(_name), score(_score) {
+    rank = new int;
+}
+
+int main()
+{
+    Student Peter(10039, 1, "Peter", 88.88);
+    Peter.get();
+    Peter.SetRank(2);
+    std::cout << Peter.GetRank();
+    return 0;
+}
+```
+一個類別被建構後如果沒有寫解構子，那麼在繼承後到程式結束，就有可能會沒有釋放到記憶體造成記憶體洩漏(Memory Leak)。所以最好是在每個類別中都預設一個建構子與解構子。
