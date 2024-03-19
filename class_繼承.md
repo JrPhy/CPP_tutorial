@@ -69,3 +69,43 @@ base destruct
 ```
 因為 derived 是從子類繼承而來，所以先呼叫子類的解構子，再呼叫父類的，而因為這邊也有初始化一次父類，所以父類的解構子會被呼叫兩次。
 #### 3. 避免 MEMORY LEAK
+如果有使用到 new 的話，就要小心是不是有正確的 delete 物件。在繼承關係中雖然會自動呼叫解構子，但有時候會呼叫失敗，下面就是一個呼叫[失敗的例子](https://stackoverflow.com/questions/461203/when-to-use-virtual-destructors?rq=2)
+```cpp
+#include<iostream>
+class base {
+public:
+    base() { std::cout << "base constructor\n"; };
+    ~base() { std::cout << "base destructor\n"; };
+};
+class derived: public base {
+public:
+    derived() { std::cout << "derived constructor\n"; };
+    ~derived() { std::cout << "derived destructor\n"; };
+};
+
+int main() {
+    base *p = new derived;
+    delete p;
+    return 0;
+}
+```
+在這個例子中雖然在父類與子類都有寫解構子，但是實際跑出來卻沒有呼叫到子類的解構子，因為 *p 原本是 base 類別，在此初始化了一個 derived 的類別，此時兩型別就不同。雖然有呼叫到 delete p，但因為型別不同，在 C++ 中是一個未定義行為，在此可以在父類別的解構子前面加上 ```virtual``` 關鍵字來避免此問題。
+```cpp
+#include<iostream>
+class base {
+public:
+    base() { std::cout << "base constructor\n"; };
+    virtual ~base() { std::cout << "base destructor\n"; };
+};
+class derived: public base {
+public:
+    derived() { std::cout << "derived constructor\n"; };
+    ~derived() { std::cout << "derived destructor\n"; };
+};
+
+int main() {
+    base *p = new derived;
+    delete p;
+    return 0;
+}
+```
