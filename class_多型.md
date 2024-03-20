@@ -38,14 +38,14 @@ class Matrix
 {
    public:
     Matrix() {};
-    friend Matrix operator+(Matrix &,Matrix &); "+" 重載
+    friend Matrix operator+(Matrix &,Matrix &); // "+" 重載
     void input(std::vector<std::vector<int> > mat);
     void display();
    private:
     int mat[2][3] = {0};
 };
 
-Matrix operator+(Matrix &a,Matrix &b) "+" 重載實作
+Matrix operator+(Matrix &a,Matrix &b) // "+" 重載實作
 {
     Matrix c;
     for(int i = 0; i < 2; i++) {
@@ -206,4 +206,20 @@ calss derived:public base{
     void f2() { return 2; };     //錯誤，無法覆寫
 };
 ```
-這兩個關鍵字讓開發者避免無心錯誤，算是非常好用。
+這兩個關鍵字讓開發者避免無心錯誤，算是非常好用。當然 virtual 和 override 與 final 三者是可以同時使用的。即告訴使用者該函數有可能被別的類別繼承，且是從父類別繼承並父寫來的，並無法給他的子類別覆寫。
+```cpp
+class Drived : public Base
+{
+public:
+    void A_1() { printf("Drived::A_1\n"); };
+    //覆寫了基底類別的函數，用基底類別指標呼叫時呼叫到的時基底類別的A_1，用子類別指標呼叫時呼叫到的時子類別的A_1
+    virtual void A_2() { printf("Drived::A_2\n"); };
+    //用基底類別或子類別指標都呼叫的是子類別的A_2,之類的virtual說明的是子類別的A_2還可以被virtual
+    void A_3() { printf("Drived::A_3\n"); };
+    //用基底類別或子類別指標都呼叫的是子類別的A_2
+    virtual void A_4() override final { printf("Drived::A_4\n"); };
+    //子類別加上override，如果基底類別沒有對應virtual函式就會編譯錯誤。避免拼錯和記錯沒有重寫基底類別函數
+    //void A_5() override { printf("Drived::A_5\n"); };
+    //編譯錯誤'Drived::A_5': method with override specifier 'override' did not override any base class methods
+};
+```
