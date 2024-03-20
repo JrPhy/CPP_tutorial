@@ -43,11 +43,11 @@ int main()
 {
     base b1(7, 8);
     // 初始化 base 中的 a, b 並印出 base construct, in base a = 7
-	derived a1(1000.8989898989);
+    derived a1(1000.8989898989);
     // 因為是從 base 繼承而來的，且建構函數也是從基類來
     // 所以會先印 base construct, in base a = 1000
     // 在印出 derived construct, in derived a = 1000
-	a1.display();
+    a1.display();
     // derived 中 display() 印出 in base
     b1.display_b();
     // base 中 display_b() 印出 8
@@ -134,7 +134,7 @@ int main() {
     return 0;
 }
 ```
-這樣一來呼叫到的 do_something() 就是 derived 中的。
+這樣一來呼叫到的 do_something() 就是 derived 中的而非 base 中的 do_something()。
 ```
 base constructor
 derived constructor
@@ -142,3 +142,22 @@ derived do_something
 derived destructor
 base destructor
 ```
+當然若一函數在基類中被用 virtual 修飾，則被稱為**虛函數**，他的子類也不一定需要有自己的實作，如果子類沒有自己的實作，那就會去呼叫基類中的該函數，以上述例子來說為 base do_something。所以在記憶體洩漏的例子中，即便有把基類的解構子用 virtual 修飾，但若在子類沒另外寫，那麼程式結束時也不會呼叫到子類的解構子。而如果在基類的虛函數僅提供介面不提供時做，則可將其宣告為純虛函數，下方即為一個例子
+```cpp
+#include<iostream>
+class base {
+public:
+    base() { std::cout << "base constructor\n"; };
+    virtual ~base() { std::cout << "base destructor\n"; };
+    virtual void do_something() { std::cout << "base do_something\n"; };
+    virtual void exec() = 0;
+};
+class derived: public base {
+public:
+    derived() { std::cout << "derived constructor\n"; };
+    ~derived() { std::cout << "derived destructor\n"; };
+    void do_something() { std::cout << "derived do_something\n"; };
+    void exec() = {...};
+};
+```
+在 base 中有個 ```virtual void exec() = 0;``` 即告訴開發者，每個繼承此類的函數都需要有一個自己的 exec() 實作，如果沒有的話編譯器就會抱錯。
