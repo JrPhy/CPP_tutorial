@@ -36,17 +36,14 @@ int main() {
 class Matrix
 {
    public:
-    Matrix();
+    Matrix() {};
     friend Matrix operator+(Matrix &,Matrix &); "+" 重載
     void input(std::vector<std::vector<int> > mat);
     void display();
    private:
-    int mat[2][3];
+    int mat[2][3] = {0};
 };
-Matrix::Matrix()
-{
-    for(int i = 0; i < 2; i++) for(int j = 0; j < 3; j++) mat[i][j] = 0;
-}
+
 Matrix operator+(Matrix &a,Matrix &b) "+" 重載實作
 {
     Matrix c;
@@ -72,8 +69,8 @@ void Matrix::display()
         for(int j=0;j<3;j++) {
             cout << mat[i][j] << " ";
         }
+        cout<<endl;
     }
-    cout<<endl;
 }
 int main()
 {
