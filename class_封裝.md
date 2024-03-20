@@ -219,7 +219,7 @@ int main()
 }
 ```
 #### 3. 解構子
-在 C/C++ 中如果沒有使用到 new/malloc，那麼在程式結束後記憶體會自動釋放，如果有的話就需要自行去做 delete/free。一個類別中如果有使用到 new/malloc，在解構時就需要有寫 delete/free 來釋放記憶體。
+在 C/C++ 中如果沒有使用到 new/malloc，那麼在程式結束後記憶體會自動釋放，如果有的話就需要自行去做 delete/free。一個類別中如果有使用到 new/malloc，在解構時就需要有寫 delete/free 來釋放記憶體。解構子不採用任何引數，且沒有傳回類型。無法取得其位址。解構子無法宣告為 const、 volatile、 const volatile 或 static，但可以宣告為 virtual 或 pure virtual。
 ```cpp
 #include <string>
 #include <iostream>
