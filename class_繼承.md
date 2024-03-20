@@ -110,3 +110,35 @@ int main() {
     return 0;
 }
 ```
+#### 4. virtual 關鍵字
+virtual 關鍵字只能用在普通或是解構函數，用來告訴編譯器這個函數**有可能**會在子類被改寫。所以在上述例子中，子類的解構函數被改寫了，如果一個類是會被別的類繼承，那最好在他的解構函數前加上 virtual 關鍵字。
+```cpp
+#include<iostream>
+class base {
+public:
+    base() { std::cout << "base constructor\n"; };
+    virtual ~base() { std::cout << "base destructor\n"; };
+    virtual void do_something() { std::cout << "base do_something\n"; };
+};
+class derived: public base {
+public:
+    derived() { std::cout << "derived constructor\n"; };
+    ~derived() { std::cout << "derived destructor\n"; };
+    void do_something() { std::cout << "derived do_something\n"; };
+};
+
+int main() {
+    base *p = new derived;
+    p->do_something();
+    delete p;
+    return 0;
+}
+```
+這樣一來呼叫到的 do_something() 就是 derived 中的。
+```
+base constructor
+derived constructor
+derived do_something
+derived destructor
+base destructor
+```
