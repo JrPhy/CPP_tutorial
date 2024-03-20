@@ -96,4 +96,4 @@ int main()
     return 0;
 }
 ```
-2. ## 覆寫(Override)
+## 2. 覆寫(Override)
