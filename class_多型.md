@@ -27,4 +27,72 @@ int main() {
 |   |  |  |  | |
 | --- | --- | --- | --- | --- |
 | . | .* | :: | ?: | sizeof |
+在此可以寫一個矩陣加法的重載運算子的例子
+```cpp
+#include <iostream>
+#include <vector>
+
+class Matrix
+{
+   public:
+    Matrix();
+    friend Matrix operator+(Matrix &,Matrix &); "+" 重載
+    void input(std::vector<std::vector<int> > mat);
+    void display();
+   private:
+    int mat[2][3];
+};
+Matrix::Matrix()
+{
+    for(int i = 0; i < 2; i++) for(int j = 0; j < 3; j++) mat[i][j] = 0;
+}
+Matrix operator+(Matrix &a,Matrix &b) "+" 重載實作
+{
+    Matrix c;
+    for(int i = 0; i < 2;i++) {
+        for(int j = 0; j < 3;j++) {
+            c.mat[i][j] = a.mat[i][j] + b.mat[i][j];
+        }
+    }
+    return c;
+}
+void Matrix::input(std::vector<std::vector<int> > mat)
+{
+    cout << "input value of matrix:" << endl;
+    for (int i = 0; i < mat.size(); i++) { 
+        for (int j = 0; j < mat[i].size(); j++) {
+            this->mat[i][j] = mat[i][j];
+        }
+    } 
+}
+void Matrix::display()
+{
+    for (int i=0;i<2;i++) {
+        for(int j=0;j<3;j++) {
+            cout << mat[i][j] << " ";
+        }
+    }
+    cout<<endl;
+}
+int main()
+{
+    Matrix a,b,c;
+    std::vector<std::vector<int> > mat_a{ { 1, 2, 3 }, 
+                                          { 4, 5, 6 }, 
+                                          { 7, 8, 9 } }; 
+    std::vector<std::vector<int> > mat_b{ { 1, 2, 3 }, 
+                                          { 4, 5, 6 }, 
+                                          { 7, 8, 9 } }; 
+    a.input(mat_a);
+    b.input(mat_b);
+    cout << endl << "Matrix a:" << endl;
+    a.display();
+    cout << endl << "Matrix b:" << endl;
+    b.display();
+    c = a + b;
+    cout << endl << "Matrix c = Matrix a + Matrix b :" << endl;
+    c.display();
+    return 0;
+}
+```
 2. ## 覆寫(Override)
