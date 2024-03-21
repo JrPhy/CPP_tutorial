@@ -130,13 +130,13 @@ class Drived : public Base
 {
 public:
     void A_1() { printf("Drived::A_1\n"); };
-    //覆寫了基底類別的函數，用基底類別指標呼叫時呼叫到的時基底類別的A_1，用子類別指標呼叫時呼叫到的時子類別的A_1
+    //覆寫了父類別的函數，用父類別指標呼叫時呼叫到的時父類別的A_1，用子類別指標呼叫時呼叫到的時子類別的A_1
     virtual void A_2() { printf("Drived::A_2\n"); };
-    //用基底類別或子類別指標都呼叫的是子類別的A_2,之類的virtual說明的是子類別的A_2還可以被virtual
+    //用父類別或子類別指標都呼叫的是子類別的A_2,之類的virtual說明的是子類別的A_2還可以被virtual
     void A_3() { printf("Drived::A_3\n"); };
-    //用基底類別或子類別指標都呼叫的是子類別的A_2
+    //用父類別或子類別指標都呼叫的是子類別的A_2
     virtual void A_4() override { printf("Drived::A_4\n"); };
-    //子類別加上override，如果基底類別沒有對應virtual函式就會編譯錯誤。避免拼錯和記錯沒有重寫基底類別函數
+    //子類別加上override，如果父類別沒有對應virtual函式就會編譯錯誤。避免拼錯和記錯沒有重寫父類別函數
     //void A_5() override { printf("Drived::A_5\n"); };
     //編譯錯誤'Drived::A_5': method with override specifier 'override' did not override any base class methods
 };
@@ -146,7 +146,7 @@ class Drived2 : public Drived
 public:
     void A_2() override { printf("Drived2::A_2\n"); }
     void A_3() override { printf("Drived2::A_3\n"); }
-    //用基底類別或子類別指標都呼叫到的是子類別的A_2
+    //用父類別或子類別指標都呼叫到的是子類別的A_2
 };
 
 class VirtualTest
@@ -212,13 +212,13 @@ class Drived : public Base
 {
 public:
     void A_1() { printf("Drived::A_1\n"); };
-    //覆寫了基底類別的函數，用基底類別指標呼叫時呼叫到的時基底類別的A_1，用子類別指標呼叫時呼叫到的時子類別的A_1
+    //覆寫了父類別的函數，用父類別指標呼叫時呼叫到的時父類別的A_1，用子類別指標呼叫時呼叫到的時子類別的A_1
     virtual void A_2() { printf("Drived::A_2\n"); };
-    //用基底類別或子類別指標都呼叫的是子類別的A_2,之類的virtual說明的是子類別的A_2還可以被virtual
+    //用父類別或子類別指標都呼叫的是子類別的A_2,之類的virtual說明的是子類別的A_2還可以被virtual
     void A_3() { printf("Drived::A_3\n"); };
-    //用基底類別或子類別指標都呼叫的是子類別的A_2
+    //用父類別或子類別指標都呼叫的是子類別的A_2
     virtual void A_4() override final { printf("Drived::A_4\n"); };
-    //子類別加上override，如果基底類別沒有對應virtual函式就會編譯錯誤。避免拼錯和記錯沒有重寫基底類別函數
+    //子類別加上override，如果父類別沒有對應virtual函式就會編譯錯誤。避免拼錯和記錯沒有重寫父類別函數
     //void A_5() override { printf("Drived::A_5\n"); };
     //編譯錯誤'Drived::A_5': method with override specifier 'override' did not override any base class methods
 };
