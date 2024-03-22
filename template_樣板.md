@@ -41,6 +41,39 @@ int main() {
     return 0;
 }
 ```
-
+如果要使用不同的型別，可以另外寫明或是在寫一個 template
+```cpp
+#include <iostream>
+template<typename T, typename U>
+T add(T a, U b) {return a+b;}
+double dadd(T a, int b) {return a+b;}
+int main() {
+    std::cout << add(4.2, 9) << std::endl;
+    // 第一個為浮點數，故 T 為浮點數，所以會回傳浮點數 13.2
+    // 第二個為整數，故 U 為浮點數
+    std::cout << add(9, 9.6) << std::endl;
+    // 第一個為整數，故 T 為整數，所以會回傳整數 18
+    // 第二個為浮點數，故 U 為浮點數
+    std::cout << dadd(9, 9.6) << std::endl; // 回傳浮點數 18.0
+    return 0;
+}
+```
 #### 2. 樣板類別 template class
-在使用 vector 時會寫成 ```std::vector<int>``` 就是使用樣板類別
+在使用 vector 時會寫成 ```std::vector<int>``` 就是使用樣板類別。在 C 語言中的 linked-list 需要先把結構宣告好，之後加入時就需要把正確的型別放到正確的位置。而在 C++ 中就可以用 template class 來像 vector 一樣有類似的宣告
+```cpp
+template <typename T>
+class LinkedList {
+    class Node {
+    public:
+        Node(T value, Node *next) : value(value), next(next) {}
+        T value;
+        Node *next;
+    };
+
+    Node *first = nullptr;
+
+public:
+    LinkedList<T>& append(T value);
+    T get(int i);
+};
+```
