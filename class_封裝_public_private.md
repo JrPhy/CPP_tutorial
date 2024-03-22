@@ -31,7 +31,7 @@ class Student {
     std::string name;
 };
 ```
-如果在 class 中有多個 private 跟 public，那麼在 private~public 中的成員為 private，public~private 中的成員為 public，private/public~} 中的成員為 private/public。
+如果在 class 中有多個 private 跟 public，那麼在 private ~ public 中的成員為 private，public ~ private 中的成員為 public，private/public ~ } 中的成員為 private/public。
 ```cpp
 class Student  // class declaration
 {
