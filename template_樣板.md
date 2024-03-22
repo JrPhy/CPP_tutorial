@@ -24,7 +24,7 @@ int main() {
 ## 1. 樣板 template
 樣板的使用格式為 ```template<typename T>``` 或是 ```template<class T>```，兩者在 C++ 中完全一樣。樣板可以用在函數跟類別，但是樣板跟函數必須緊臨，中間不可再宣告其他物件。
 #### 1. 樣板函數 template function
-如果只有宣告一個 template，那麼傳入的型別必須都一樣。例如下方的 add 函數只有用一個 T，則 a, b 跟回傳值的型別必須都為 int 或是 double，如果是分別 int 跟 double，則編譯器會報錯。
+如果只有宣告一個 template，那麼傳入的型別必須都一樣。例如下方的 add 函數只有用一個 T，則 a, b 跟回傳值的型別必須都為 int 或是 double，如果是分別 int 跟 double，則編譯器會報錯。如果函數宣告跟實作分開，那麼宣告跟實作前面都要加上 ```template<typename T>```
 ```cpp
 #include <iostream>
 template<typename T>
@@ -41,11 +41,29 @@ int main() {
     return 0;
 }
 ```
+也可以寫明型別
+```cpp
+#include <iostream>
+template<typename T>
+T add(T a, T b) {return a+b;}
+template<typename T> // 不可忽略
+void swap(T& a, T& b) {T temp = a; a = b; b = temp;}
+int main() {
+    std::cout << add<int>(3, 8) << std::endl;
+    std::cout << add<float>(4.2, 3.9) << std::endl;
+    // std::cout << add(4.2, 9) << std::endl; // 會報錯
+    int a = 10, b = 5;
+    swap<int>(a, b);
+    std::cout << a << "  " << b << std::endl;
+    return 0;
+}
+```
 如果要使用不同的型別，可以另外寫明或是在寫一個 template
 ```cpp
 #include <iostream>
 template<typename T, typename U>
 T add(T a, U b) {return a+b;}
+template<typename T>
 double dadd(T a, int b) {return a+b;}
 int main() {
     std::cout << add(4.2, 9) << std::endl;
@@ -58,7 +76,10 @@ int main() {
     return 0;
 }
 ```
-#### 2. 樣板類別 template class
+#### 2. 特化樣板
+樣板函數可以在特定型別有不同的實作
+
+#### 3. 樣板類別 template class
 在使用 vector 時會寫成 ```std::vector<int>``` 就是使用樣板類別。在 C 語言中的 linked-list 需要先把結構宣告好，之後加入時就需要把正確的型別放到正確的位置。而在 C++ 中就可以用 template class 來像 vector 一樣有類似的宣告
 ```cpp
 template <typename T>
