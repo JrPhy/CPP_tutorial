@@ -231,7 +231,7 @@ calss derived:public base{
     void f2() { return 2; };     //錯誤，無法覆寫
 };
 ```
-這兩個關鍵字讓開發者避免無心錯誤，算是非常好用。當然 virtual 和 override 與 final 三者是可以同時使用的。即告訴使用者該函數有可能被別的類別繼承，且是從父類別繼承並父寫來的，並無法給他的子類別覆寫。
+這兩個關鍵字讓開發者避免無心錯誤，算是非常好用。當然 virtual 和 override 與 final 三者是可以同時使用的。即告訴使用者該函數有可能被別的類別繼承，且是從父類別繼承並覆寫來的，並無法給他的子類別覆寫。
 ```cpp
 class Drived : public Base
 {
