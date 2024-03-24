@@ -104,7 +104,7 @@ int main()
 }
 ```
 ## 2. 覆寫(Override)
-覆寫就是修改父類相同名稱函數的實作，所以要在需要覆寫的函數前面加上 [virtual](https://github.com/JrPhy/CPP_tutorial/blob/main/class_%E7%B9%BC%E6%89%BF.md#4-virtual-%E9%97%9C%E9%8D%B5%E5%AD%97)，或是將該函數宣告為純虛函數。雖然避免了沒有正確呼叫函數，但也會造成效能下降，C++ 也另外提供了 override 跟 final 兩關鍵字來解決這問題。與重載不同，覆寫的函數與原函數在**不同的可視範圍**中，例如父類與子類，子類繼承後僅對於原函數的**實作**改寫，而不改變其引數。當然也可以在同個子類中覆寫與重載某個函數。
+覆寫就是修改父類相同名稱函數的實作，所以要在需要覆寫的函數前面加上 [virtual](https://github.com/JrPhy/CPP_tutorial/blob/main/class_%E7%B9%BC%E6%89%BF_constructor_destructor.md)，或是將該函數宣告為純虛函數。雖然避免了沒有正確呼叫函數，但也會造成效能下降，因為在編譯時會在多個 vtable，並在**執行**時決定使用哪個函數。C++ 也另外提供了 override 跟 final 兩關鍵字來解決這問題。與重載不同，覆寫的函數與原函數在**不同的可視範圍**中，例如父類與子類，子類繼承後僅對於原函數的**實作**改寫，而不改變其引數。當然也可以在同個子類中覆寫與重載某個函數。
 ```cpp
 #include <iostream>
 class base {
