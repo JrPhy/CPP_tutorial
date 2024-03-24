@@ -1,25 +1,34 @@
 在物件導向中，多型(polymorphism)包含了多載(Overload)與覆寫(Override)兩個功能。不過主要就是說明**同一名稱的函數**，有不同的傳入函數型別、不同傳入的引數，跟(與父類別)不同的函數實作。主要就是為不同資料類型的實體提供統一的介面。
 
 ## 1. 多載(Overload)
-在同個類別中，有相同的函數名稱，但是有不同的引數，是在**編譯期間**就可以知道要呼叫哪個函數
+在同個**可視範圍**中，有相同的函數名稱，但是有不同的引數，是在**編譯期間**就可以知道要呼叫哪個函數
 #### 1. 函數重載
 ```
-class Print {
-   public:
-    void print(const char * str, int width) {...};  // #1
-    void print(double d, int width) {...};          // #2
-    void print(long l, int width) {...};            // #3
-    void print(int i, int width) {...};             // #4
-    void print(const char *str) {...};              // #5
+#include <iostream>
+void print(int var)
+{
+    std::cout << "Integer number: " << var << std::endl;
 }
 
-int main() {
-    Print p;
-    p.print("Pancakes", 15);         // use #1
-    p.print("Syrup");                // use #5
-    p.print(1999.0, 10);             // use #2
-    p.print(1999, 12);               // use #4
-    p.print(1999L, 15);              // use #3
+void print(float var)
+{
+    std::cout << "Float number: "<< var << std::endl;
+}
+
+void print(int var1, float var2)
+{
+    std::cout << "Integer number: " << var1;
+    std::cout << " and float number:" << var2;
+}
+int main()
+{
+    int a = 5;
+    float b = 5.5;
+    print(a);
+    print(b);
+    print(a, b);
+ 
+    return 0;
 }
 ```
 以這個例子來說，前面四個除了第一個引數不同外其餘都相同，所以也可以考慮使用樣板(template)來讓函數可以傳入任意型別。
@@ -29,7 +38,7 @@ int main() {
 | --- | --- | --- | --- | --- |
 | . | .* | :: | ?: | sizeof |
 
-在此可以寫一個矩陣加法的重載運算子的例子
+如果要重載運算子，則需要在重載的符號前加上operator。在此可以寫一個矩陣加法的重載運算子的例子
 ```cpp
 #include <iostream>
 #include <vector>
@@ -57,7 +66,7 @@ Matrix operator+(Matrix &a,Matrix &b) // "+" 重載實作
 }
 void Matrix::input(std::vector<std::vector<int> > mat)
 {
-    cout << "input value of matrix:" << endl;
+    std::cout << "input value of matrix:" << std::endl;
     for (int i = 0; i < mat.size(); i++) { 
         for (int j = 0; j < mat[i].size(); j++) {
             this->mat[i][j] = mat[i][j];
@@ -68,9 +77,9 @@ void Matrix::display()
 {
     for(int i = 0; i < 2; i++) {
         for(int j = 0; j < 3; j++) {
-            cout << mat[i][j] << " ";
+            std::cout << mat[i][j] << " ";
         }
-        cout<<endl;
+        std::cout<<endl;
     }
 }
 int main()
@@ -84,28 +93,49 @@ int main()
                                           { 7, 8, 9 } }; 
     a.input(mat_a);
     b.input(mat_b);
-    cout << endl << "Matrix a:" << endl;
+    std::cout << std::endl << "Matrix a:" << std::endl;
     a.display();
-    cout << endl << "Matrix b:" << endl;
+    std::cout << std::endl << "Matrix b:" << std::endl;
     b.display();
     c = a + b;
-    cout << endl << "Matrix c = Matrix a + Matrix b :" << endl;
+    std::cout << std::endl << "Matrix c = Matrix a + Matrix b :" << std::endl;
     c.display();
     return 0;
 }
 ```
 ## 2. 覆寫(Override)
-覆寫就是修改父類相同名稱函數的實作，所以要在需要覆寫的函數前面加上 [virtual](https://github.com/JrPhy/CPP_tutorial/blob/main/class_%E7%B9%BC%E6%89%BF.md#4-virtual-%E9%97%9C%E9%8D%B5%E5%AD%97)，或是將該函數宣告為純虛函數。雖然避免了沒有正確呼叫函數，但也會造成效能下降，C++ 也另外提供了 override 跟 final 兩關鍵字來解決這問題。
-
+覆寫就是修改父類相同名稱函數的實作，所以要在需要覆寫的函數前面加上 [virtual](https://github.com/JrPhy/CPP_tutorial/blob/main/class_%E7%B9%BC%E6%89%BF.md#4-virtual-%E9%97%9C%E9%8D%B5%E5%AD%97)，或是將該函數宣告為純虛函數。雖然避免了沒有正確呼叫函數，但也會造成效能下降，C++ 也另外提供了 override 跟 final 兩關鍵字來解決這問題。與重載不同，覆寫的函數與原函數在**不同的可視範圍**中，例如父類與子類，子類繼承後僅對於原函數的**實作**改寫，而不改變其引數。當然也可以在同個子類中覆寫與重載某個函數。
+```cpp
+#include <iostream>
+class base {
+   public:
+    void print() { std::cout << "base\n "; };
+};
+class derived:public base{
+   public:
+    void print() { std::cout << "derived\n "; }; // Override
+    void print(int var) { std::cout << "derived: " << var; }; // Overload
+};
+int main()
+{
+    derived p;
+    int a = 5;
+    float b = 5.5;
+    p.print(a);
+    return 0;
+}
+```
 #### 1. override
 override 在 C++11 為一個關鍵字，用了此關鍵字就會由編譯器提醒開發者是否有正確覆寫父類的函數。因為 virtual 並不強迫一定要覆寫，而 override 則是一定要覆寫，而且若名字或是引數錯誤，也會藉由編譯器提醒。
 ```cpp
 class base {
+   public:
     virtual void f1(int) const;
     virtual void f2();
     void f3();
 };
 calss derived:public base{
+   public:
     void f1(int) const override; //正確
     void f2(int) override;       //錯誤，引數不同
     void F2() override;          //錯誤，名稱不同
@@ -115,10 +145,9 @@ calss derived:public base{
 ```
 在子類中的函數加上 override 可以讓編譯器檢查。若子類某個函數同時加上 virtual 跟 override，則是告訴開發者這個函數在他的基類也有並且被覆寫了，且此類的蓋函數有可能需要被別人繼承並覆寫。
 ```cpp
-#include <stdio.h>
-class Base
-{
-public:
+#include <iostream>
+class Base {
+   public:
     void A_1()  { printf("Base::A_1\n"); };
     virtual void A_2() { printf("Base::A_2\n"); };
     virtual void A_3() { printf("Base::A_3\n"); };
@@ -126,9 +155,8 @@ public:
     void A_5() { printf("Base::A_5\n"); };
 };
 
-class Drived : public Base
-{
-public:
+class Drived : public Base {
+   public:
     void A_1() { printf("Drived::A_1\n"); };
     //覆寫了父類別的函數，用父類別指標呼叫時呼叫到的時父類別的A_1，用子類別指標呼叫時呼叫到的時子類別的A_1
     virtual void A_2() { printf("Drived::A_2\n"); };
@@ -141,19 +169,16 @@ public:
     //編譯錯誤'Drived::A_5': method with override specifier 'override' did not override any base class methods
 };
 
-class Drived2 : public Drived
-{
-public:
+class Drived2 : public Drived {
+   public:
     void A_2() override { printf("Drived2::A_2\n"); }
     void A_3() override { printf("Drived2::A_3\n"); }
     //用父類別或子類別指標都呼叫到的是子類別的A_2
 };
 
-class VirtualTest
-{
-public:
-    void DoTest()
-    {
+class VirtualTest {
+   public:
+    void DoTest() {
         Drived *drived = new Drived();
         Base *base = drived;
         base->A_1();
