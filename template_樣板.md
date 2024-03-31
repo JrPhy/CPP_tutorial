@@ -21,7 +21,7 @@ int main() {
 }
 ```
 雖然在 C++ 中可以在類別函數中去[重載函數](https://github.com/JrPhy/CPP_tutorial/blob/main/class_%E5%A4%9A%E5%9E%8B_virtual_override_final.md#1-%E5%87%BD%E6%95%B8%E9%87%8D%E8%BC%89)，但就要寫很多個函數，C++ 另外提供樣板(template)來讓開發者寫泛型函數。
-## 1. 樣板 template
+## 1. 型別參數樣板 Type template
 樣板的使用格式為 ```template<typename T>``` 或是 ```template<class T>```，兩者在 C++ 中完全一樣。樣板可以用在函數跟類別，但是樣板跟函數或類別必須緊臨，中間不可再宣告其他物件。
 #### 1. 樣板函數 template function
 如果只有宣告一個 template，那麼傳入的型別必須都一樣。例如下方的 add 函數只有用一個 T，則 a, b 跟回傳值的型別必須都為 int 或是 double，如果是分別 int 跟 double，則編譯器會報錯。如果函數宣告跟實作分開，那麼宣告跟實作前面都要加上 ```template<typename T>```
@@ -58,7 +58,7 @@ int main() {
     return 0;
 }
 ```
-如果要使用不同的型別，可以另外寫明或是在寫一個 template
+雖然對於開發者來說好像只有寫一個函數，但對**編譯器**來說實際上是分別寫了**兩個不同型別**的 add。如果要使用不同的型別，可以另外寫明或是在寫一個 template
 ```cpp
 #include <iostream>
 template<typename T, typename U>
@@ -151,6 +151,89 @@ int main() {
     listf.push(3.1);
     listf.print();
 
+    return 0;
+}
+```
+## 2. 非型別參數樣板 non-type parameters
+樣板除了傳型別以外也可以傳值，寫作 ```template<typename T, int a>```，在某些時候會希望在宣告時就給定大小，例如 array, stack 等資料結構，這樣在使用時就能讓使用者更方便的去初始化。當然這也有些限制，只能傳 int/enum 與 std::nullptr_t，指向物件/函數/成員變數的指標、物件或函數的左值引用(回傳引用)。
+#### 1. 類別 class
+```cpp
+#include <iostream>
+#include <string>
+template <typename T, std::size_t Maxsize>
+class Stack
+{
+   private:
+    std::array<T, Maxsize> elems; // elements
+    std::size_t numElems;         // current number of elements
+   public:
+    Stack();                  // constructor
+    void push(T const& elem); // push element
+    void pop();               // pop element
+    T const& top() const;     // return top element
+    bool empty() const
+    { // return whether the stack is empty
+        return numElems == 0;
+    }
+    std::size_t size() const
+    { // return current number of elements
+        return numElems;
+    }
+};
+// 實作
+int main()
+{
+      Stack<int,20> int20Stack;     // stack of up to 20 ints
+      Stack<int,40> int40Stack;     // stack of up to 40 ints
+      Stack<std::string,40> stringStack;    // stack of up to 40 strings
+    
+      int20Stack.push(7);
+      std::cout << int20Stack.top() << '\n';
+      int20Stack.pop();
+
+      stringStack.push("hello");
+      std::cout << stringStack.top() << '\n';
+      stringStack.pop();
+}
+```
+上述例子在寫的時候，stack 中可以放任意型別，這點由使用者決定，大小也是給使用者決定，使用者在宣告時只要直接給型別和大小即可，當然也可以用建構子的方式來初始化。
+當然也可以給預設的值就不用另外傳參數進去。
+```cpp
+template <typename T, std::size_t Maxsize = 20>
+class Stack
+{
+   private:
+    std::array<T, Maxsize> elems; // elements
+    std::size_t numElems;         // current number of elements
+   public:
+    Stack();                  // constructor
+    ....
+};
+// 實作
+int main()
+{
+      Stack<int> Stack;     // stack of up to 20 ints
+      Stack<int,40> int40Stack;     // stack of up to 40 ints
+      Stack<std::string,40> stringStack;    // stack of up to 40 strings
+}
+```
+#### 2. 函數 function
+當然對於函數也有相同的用法
+```cpp
+#include <iostream>
+template<typename T, int value = 20>
+T add(T a, T b) {return a+b+value;}
+template<typename T> // 不可忽略
+void swap(T& a, T& b) {T temp = a; a = b; b = temp;}
+int main() {
+    std::cout << add<int, 30>(3, 8) << std::endl;
+    // 3+8+30
+    std::cout << add<float>(4.2, 3.9) << std::endl;
+    // 4.2+3.9+20
+    // std::cout << add(4.2, 9) << std::endl; // 會報錯
+    int a = 10, b = 5;
+    swap<int>(a, b);
+    std::cout << a << "  " << b << std::endl;
     return 0;
 }
 ```
