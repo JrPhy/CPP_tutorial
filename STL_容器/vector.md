@@ -18,10 +18,10 @@ int main(int argc, char* argv[])
         vec.push_back(i); // 每 push 一次大小就會增加 1
         cout << vec.size() << " "; // 輸出：3 4 5 6
     }
-	for (int i = 0; i<vec.size(); i++) cout << vec[i] <<" ";
+    for (int i = 0; i<vec.size(); i++) cout << vec[i] <<" ";
     // 輸出：9 9 0 1 2 3
     // 若無第九行，則為 std::cout ...
-	return 0;
+    return 0;
 }
 ```
 ![img](https://github.com/JrPhy/CPP_tutorial/blob/main/img/vector_size.jpg)
@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 除了在尾端插入元素，也可以用 insert 在任意位置插入元素，但是因為插入後要把該位置後面的元素在往後移，所以複雜度為 O(n)，取決於後面還有多少元素，如果陣列大小不足，則還需要新開陣列並複製原始元素到新的陣列中。一般來說要在向量中增加元素，盡量使用 push_back 會有較好的效能。如果是要頻繁的插入則可考慮 [list](https://github.com/JrPhy/DS-AL/blob/master/List_and_Tree/LinkedList-%E9%9B%99%E5%90%91%E9%80%A3%E7%B5%90.md)。
 #### 3. pop_back()
 把最尾端的元素拿掉，並且 size 會少 1，capacity 並不會改變。
-#### 3. erase(iterator position), erase(iterator first, iterator last)
+#### 4. erase(iterator position), erase(iterator first, iterator last)
 erase 傳入和返回**迭帶器**(可以當作一個指標)，所以並不能像前面的函數一樣直接呼叫，必須先用 iterator 才行，可以使用 begin() 這個成員函數先指向起始位置，再去指定位置，或是刪除特定元素，且呼叫 erase 後 size 也會變小。可以刪除指定位置的元素，也可刪除某個範圍內的元素。
 ```cpp
 #include <vector>
@@ -52,6 +52,49 @@ int main(int argc, char* argv[])
     // 刪除 vec[3] (2), vec[4] (3), vec[5] (已超出 size，不會有動作)
     for (int i = 0; i < vec.size(); i++) cout << vec[i] << " ";
     // 9 0 1
-	return 0;
+    return 0;
 }
+```
+因為 erase 是用迭帶器操作，所以如果有重複的資料要刪除，要去移動迭帶器指向下一個位置，不然只會刪除第一個找到的
+```cpp
+#include <vector>
+#include <iostream>
+using namespace std;
+int main(int argc, char* argv[])
+{
+    vector<int> vec(2, 9);
+    for (int i = 0; i < 4; i++) vec.push_back(i);
+    for (vector<int>::iterator it = vec.begin(); it != vec.end();) {
+        if (*it == 9) vec.erase(it);
+        else ++it; //沒有這段就只會刪除第一個 9
+    }
+}
+```
+#### 5. clear
+會把向量中的元素清除並把 size 設為 0，但不改變 capacity 的大小
+
+## 3. 多維向量
+在宣告陣列時我們會宣告多維陣列，如 ```int A[10][10]; ``` 表示 10*10 的陣列，但實際上在記憶體中都是一維的，而要宣告多維向量則是
+```cpp
+#include <iostream> 
+#include <vector> 
+int main() 
+{
+    // 如同 2 維陣列初始化
+    std::vector<std::vector<int> > vec{ { 1, 2, 3, 4}, 
+                                        { 5, 6, 7, 8 }, 
+                                        { 9, 10, 11, 12 } };
+    // 空格為必要
+    vec[2].pop_back(); // 移除 3rd row 的尾端元素
+    vec[1].pop_back(); // 移除 2nd row 的尾端元素
+  
+    // 如同 2 維陣列的大小
+    for (int i = 0; i < vec.size(); i++) { 
+        for (int j = 0; j < vec[i].size(); j++) {
+            std::cout << vec[i][j] << " "; 
+        }
+        std::cout << std::endl; 
+    } 
+    return 0; 
+} 
 ```
