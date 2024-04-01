@@ -1,0 +1,2 @@
+map 和 unordered_map 皆為一種鍵值(key-value)對應的資料結構，實作為[紅黑樹](https://github.com/JrPhy/DS-AL/blob/master/List_and_Tree/RBTree-%E7%B4%85%E9%BB%91%E6%A8%B9.md)。而 unordered_map 實作則為 [hash table](https://github.com/JrPhy/DS-AL/blob/master/Hash_and_Hash_table.md)。從其命名也可知，map 為有序地排列，而 unordered_map 則為無序的，跟底層的實作有關。所以在使用時，如果需要頻繁的刪除與插入，unordered_map 會是比較好的選擇。
+而在 C++ STL 中還提供了 set 這個資料結構，用其 value 當作 key，可以放入**不重複**的成員，且會根據 key 做排序，詳細的比較可參考[這篇](https://www.cnblogs.com/summer-vv/p/15794174.html)
