@@ -1,3 +1,4 @@
+在 C++ 中提供了三種序列式容器，分別是向量（vector）(ARRAY 封裝)、雙端列隊（deque）([deque](https://github.com/JrPhy/DS-AL/tree/master/Stack_and_Queue) 封裝)、列表（list）([雙向 LIST 封裝](https://github.com/JrPhy/DS-AL/blob/master/List_and_Tree/LinkedList-%E9%9B%99%E5%90%91%E9%80%A3%E7%B5%90.md))
 ## 1. 向量（vector）
 此說的向量並非數學上的向量，可以當作是 C++ 中更好用的 ARRAY，除了有 ARRAY 的特性外，還可以隨時改變他的大小。
 ```cpp
@@ -94,3 +95,32 @@ int main()
     return 0; 
 } 
 ```
+## 2. 列表 LIST
+C++ STL 中的 list 為[雙向 LIST 封裝](https://github.com/JrPhy/DS-AL/blob/master/List_and_Tree/LinkedList-%E9%9B%99%E5%90%91%E9%80%A3%E7%B5%90.md)，所以除了資料本身外，還需要多**兩個指標**來指向前後的節點。與向量不同，列表中每個節點都是新開的指標，所以為**不連續**的記憶體位置，而且一定要從開頭去走訪。而 STL 對於 list 的封裝讓 list 可以像 array 一樣的方式初始化
+```cpp
+#include <iostream> 
+#include <list>
+
+int main() {
+    std::list<int> ListInt = {1, 2, 3};
+    int array[] = {3, 2, 1}; // C++98 會報錯，C++11 可以
+    std::list<int> ListInt1(array, array+3);
+    std::list<double> ListDou(5, 10.0); // 長度為 5 且值皆為 10
+    for (const auto &n : ListInt) {
+        std::cout << n << ", "; // 1, 2, 3,
+    }
+    std::cout << "\n";
+    return 0;
+}
+```
+## 4. 列表的資料結構
+除了放資料本身外，還需要有兩個指標指向前後節點，所以雖然 LIST 可以有多少資料就放多少節點，但每多開一個節點就需要多開兩個指標的空間。
+
+## 5. 列表操作的複雜度
+除了向量中提供的函數外，列表還支援 push_front, pop_front, [merge, sort](https://github.com/JrPhy/DS-AL/blob/master/Sort_and_Search/Sorting_for_list.md), [reverse](https://github.com/JrPhy/DS-AL/blob/master/List_and_Tree/LinkedList-%E9%9B%99%E5%90%91%E9%80%A3%E7%B5%90.md#6-%E9%9B%99%E5%90%91-list-%E5%8F%8D%E8%BD%89) 等函數。
+#### 1. push_back(value), push_front(value) 與 pop_back(value), pop_front(value)
+由於列表本身記憶體不連續，而且一定要從頭去走訪，但是只要把新的資料與該位置直接接上就好，並不用像向量需要移動整個陣列內的資料，所以對列表的操作從**起始點**開始操作會比較有效率，push_front 和 pop_front 複雜度皆為 O(1)，但 push_back 和 pop_back 複雜度皆為 O(n)。
+#### 2. insert(position, value)
+因為是用指標做連接，所以在任意位置插入，只須找到該位置，然後讓指標重新串接即可，不需把後面的資料在往後移，故複雜度取決於該位置離起始位置有多遠。
+
+## 6. 隊列
