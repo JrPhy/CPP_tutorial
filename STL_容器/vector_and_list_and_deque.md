@@ -127,12 +127,12 @@ int main() {
 ## 5. 列表操作的複雜度
 除了向量中提供的函數外，列表還支援 push_front, pop_front, [merge, sort](https://github.com/JrPhy/DS-AL/blob/master/Sort_and_Search/Sorting_for_list.md), [reverse](https://github.com/JrPhy/DS-AL/blob/master/List_and_Tree/LinkedList-%E9%9B%99%E5%90%91%E9%80%A3%E7%B5%90.md#6-%E9%9B%99%E5%90%91-list-%E5%8F%8D%E8%BD%89) 等函數。
 #### 1. push_back(value), push_front(value) 與 pop_back(value), pop_front(value)
-因為本身為雙端列表，所以可以從頭尾開始去存取，所以這四種操作複雜度皆為 O(1)。
+因為本身為雙端列表，所以可以從頭尾開始去存取，所以這四種操作複雜度皆為 O(1)，但就對尾端元素的操作，vector 效能還是比 list 高的。
 #### 2. insert(position, value)
 因為是用指標做連接，所以在任意位置插入，只須找到該位置，然後讓指標重新串接即可，不需把後面的資料在往後移，故複雜度取決於該位置離起始位置有多遠，複雜度為 O(n)。
 
 ## 6. 雙端[隊列 DEQUE](https://github.com/JrPhy/DS-AL/blob/master/Stack_and_Queue/Queue-%E4%BD%87%E5%88%97.md)
-一般的隊列底層是陣列，然後是 FIFO，所以會去記錄第一個 start 跟最後一個 finish。而 STL 的雙端隊列融合了 vector 和 list，所以在起始位置的操作會比 vector 稍快，末位置的操作比 list 稍快。
+為 double-ended queue，一般的隊列底層是陣列，然後是 FIFO，所以會去記錄第一個 start 跟最後一個 finish。而 STL 的雙端隊列**融合了 vector 和 list** 的優缺點。
 #### 1. 隊列的資料結構
 底層是用很多段陣列，最後將其串起來。所以底層其實是有很多的指標，這些指標會分別指向一段連續的記憶體，不同段的記憶體就不一定是連續的，在 std::deque 中稱其為 map，與 std::map 不同。
 ![img](https://github.com/JrPhy/CPP_tutorial/blob/main/img/deque.jpg)
@@ -160,4 +160,9 @@ int main() {
 ```
 #### 2. 隊列走訪的效能
 前面提到對列底層並非完全連續的記憶體位置，雖然也可以像陣列一樣用 index 取值，但在底層其實是重載了 [] 算子，必須要先找到在 map 的位置，然後再找到 index 的位置，所以在走訪的時候效能會比 vector 用 index 走訪[慢約 4 倍](https://blog.csdn.net/u011428210/article/details/111869627)，但是用 iterator 則會差不多。
-
+## 7. 隊列操作的複雜度
+列表中有的對列也都有
+#### 1. push_back(value), push_front(value) 與 pop_back(value), pop_front(value)
+因為本身為雙端隊列，所以可以從頭尾開始去存取，所以這四種操作複雜度皆為 O(1)，但就對尾端元素的操作，vector 效能還是比 list 高的。
+#### 2. insert(position, value)
+因為是用指標做連接，所以在任意位置插入，只須找到該位置，然後讓指標重新串接即可，不需把後面的資料在往後移，故複雜度取決於該位置離起始位置有多遠，複雜度為 O(n)。
