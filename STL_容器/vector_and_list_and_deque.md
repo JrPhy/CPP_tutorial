@@ -30,7 +30,15 @@ int main(int argc, char* argv[])
 #### 1. push_back(value)
 由於向量底層是用陣列實作，再加上一些整數來記錄位置，所以可以直接在尾端插入，如果陣列大小足夠的話複雜度為 O(1) (大部分情況)，不夠的話則需要再開新陣列並把原本的值複製到新的向量，這時為 O(n) (少數情況)。
 #### 2. insert(position, value)
-除了在尾端插入元素，也可以用 insert 在任意位置插入元素，但是因為插入後要把該位置後面的元素在往後移，所以複雜度為 O(n)，取決於後面還有多少元素，如果陣列大小不足，則還需要新開陣列並複製原始元素到新的陣列中。一般來說要在向量中增加元素，盡量使用 push_back 會有較好的效能。如果是要頻繁的插入則可考慮 [list](https://github.com/JrPhy/DS-AL/blob/master/List_and_Tree/LinkedList-%E9%9B%99%E5%90%91%E9%80%A3%E7%B5%90.md)。
+除了在尾端插入元素，也可以用 insert 在任意位置插入元素，但是因為插入後要把該位置後面的元素在往後移，所以複雜度為 O(n)，取決於後面還有多少元素，如果陣列大小不足，則還需要新開陣列並複製原始元素到新的陣列中。一般來說要在向量中增加元素，盡量使用 push_back 會有較好的效能。如果是要頻繁的插入則可考慮 [list](https://github.com/JrPhy/DS-AL/blob/master/List_and_Tree/LinkedList-%E9%9B%99%E5%90%91%E9%80%A3%E7%B5%90.md)。所以在新增時的步驟為 \
+1. 檢查長度是否足夠
+2.1. 足夠
+2.2. 找到位置插入
+2.3. 把後面的值往後移
+3.1. 不足夠
+3.2. 配置新空間
+3.3. 找到位置插
+3.4. 把後面的值往後移
 #### 3. pop_back()
 把最尾端的元素拿掉，並且 size 會少 1，capacity 並不會改變。
 #### 4. erase(iterator position), erase(iterator first, iterator last)
@@ -119,8 +127,37 @@ int main() {
 ## 5. 列表操作的複雜度
 除了向量中提供的函數外，列表還支援 push_front, pop_front, [merge, sort](https://github.com/JrPhy/DS-AL/blob/master/Sort_and_Search/Sorting_for_list.md), [reverse](https://github.com/JrPhy/DS-AL/blob/master/List_and_Tree/LinkedList-%E9%9B%99%E5%90%91%E9%80%A3%E7%B5%90.md#6-%E9%9B%99%E5%90%91-list-%E5%8F%8D%E8%BD%89) 等函數。
 #### 1. push_back(value), push_front(value) 與 pop_back(value), pop_front(value)
-由於列表本身記憶體不連續，而且一定要從頭去走訪，但是只要把新的資料與該位置直接接上就好，並不用像向量需要移動整個陣列內的資料，所以對列表的操作從**起始點**開始操作會比較有效率，push_front 和 pop_front 複雜度皆為 O(1)，但 push_back 和 pop_back 複雜度皆為 O(n)。
+因為本身為雙端列表，所以可以從頭尾開始去存取，所以這四種操作複雜度皆為 O(1)。
 #### 2. insert(position, value)
-因為是用指標做連接，所以在任意位置插入，只須找到該位置，然後讓指標重新串接即可，不需把後面的資料在往後移，故複雜度取決於該位置離起始位置有多遠。
+因為是用指標做連接，所以在任意位置插入，只須找到該位置，然後讓指標重新串接即可，不需把後面的資料在往後移，故複雜度取決於該位置離起始位置有多遠，複雜度為 O(n)。
 
-## 6. 隊列
+## 6. 雙端[隊列 DEQUE](https://github.com/JrPhy/DS-AL/blob/master/Stack_and_Queue/Queue-%E4%BD%87%E5%88%97.md)
+一般的隊列底層是陣列，然後是 FIFO，所以會去記錄第一個 start 跟最後一個 finish。而 STL 的雙端隊列融合了 vector 和 list，所以在起始位置的操作會比 vector 稍快，末位置的操作比 list 稍快。
+#### 1. 隊列的資料結構
+底層是用很多段陣列，最後將其串起來。所以底層其實是有很多的指標，這些指標會分別指向一段連續的記憶體，不同段的記憶體就不一定是連續的，在 std::deque 中稱其為 map，與 std::map 不同。
+![img](https://github.com/JrPhy/CPP_tutorial/blob/main/img/deque.jpg)
+deque 因為底層是用陣列實作，所以在取值也可直些取 index 的值，初始化方式也能跟 vector 一樣。也可以在前後端 push 與 pop 和 insert。
+```cpp
+#include <iostream> 
+#include <deque>
+
+int main() {
+    std::deque<int> DequeInt = {1, 2, 3};
+    std::deque<double> DequeDou(5, 10.0); // 長度為 5 且值皆為 10
+    for (int i = 0; i < DequeInt.size(); i++) {
+        std::cout << DequeInt[i] << ", "; // 1, 2, 3,
+    }
+    std::cout << "\n";
+    DequeInt.push_back(4);
+    DequeInt.push_front(5);
+    DequeInt.push_back(6);
+    for (int i = 0; i < DequeInt.size(); i++) {
+        std::cout << DequeInt[i] << ", "; // 1, 2, 3,
+    }
+    std::cout << "\n";
+    return 0;
+}
+```
+#### 2. 隊列走訪的效能
+前面提到對列底層並非完全連續的記憶體位置，雖然也可以像陣列一樣用 index 取值，但在底層其實是重載了 [] 算子，必須要先找到在 map 的位置，然後再找到 index 的位置，所以在走訪的時候效能會比 vector 用 index 走訪[慢約 4 倍](https://blog.csdn.net/u011428210/article/details/111869627)，但是用 iterator 則會差不多。
+
