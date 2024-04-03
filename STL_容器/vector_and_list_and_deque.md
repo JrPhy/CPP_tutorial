@@ -7,7 +7,7 @@
 using namespace std; // 若不使用則須在 vector 前面加上 std::
 int main(int argc, char* argv[])
 {
-    vector<int> vecInt; // 若無第九行，則為 std::vector<int> vecInt;
+    vector<int> vecInt; // 若無 using namespace std，則為 std::vector<int> vecInt;
     // 宣告一個型別為 int 的 vector，不需要給定大小
     vector<double> vecDou = {10.0, 20.0, 30.0}; // 如同陣列初始化
     vector<int> vec(2, 9); // 也可以這樣初始化，前面放大小，後面放值
