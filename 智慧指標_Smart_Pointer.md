@@ -159,4 +159,4 @@ int main()
 weak_ptr 是弱共享的智慧指標，它一般指向 shared_ptr 指向的物件，但不會增加 use_count 的計數。此指標大部分與 shared_ptr 同時使用。
 
 ## 4. [使用情境](https://www.zhihu.com/question/648170767/answer/3428590625)
-基本上 unique_ptr 會使用的比較多，因為效能幾乎跟一般指標一樣，除非要用再多執行緒的程式
+基本上 unique_ptr 會使用的比較多，因為效能幾乎跟一般指標一樣，除非要用再多執行緒的程式。而 shared_ptr 只有計數的部分是原子操作，在多執行緒使用 shared_ptr 改值時還是需要上鎖才能取到正確的值。
