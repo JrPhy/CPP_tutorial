@@ -160,3 +160,28 @@ int main() {
     return 0; 
 } 
 ```
+雖然傳入參數使用 auto 可以變得很方便，但若傳入了不能使用的型別也會造成程式有未預期的結果
+```cpp
+#include <iostream>
+#include <vector>
+int main(){
+    auto sumTem = [](auto fir, auto sec) { return fir + sec; };
+    std::cout << sumTem(1, 2) << std::endl; // 3
+    std::cout << sumTem(1.2, 2.5) << std::endl; // 3.7
+    std::cout << sumTem(1, "2.5") << std::endl; // .5 ??
+} 
+```
+在 C++20 可以在 Lambda Expression 中使用 template，所以表示式就變成 []<>(){}，當然編譯器也要有支援 C++20 才行。如果只有一個 typename T，那麼就會要求所有的引數都為相同的型別
+```cpp
+#include <iostream>
+#include <vector>
+int main(){
+    auto sumTem = []<typename T>(T fir, T sec) { return fir + sec; };
+    std::cout << sumTem(1, 2) << std::endl;
+    std::cout << sumTem(1.2, 2.5) << std::endl;
+    std::cout << sumTem(1, 2.5) << std::endl;
+    // 錯誤，兩個型別不同
+    std::cout << sumTem(1, "2.5") << std::endl;
+    // 錯誤，兩個型別不同
+} 
+```
