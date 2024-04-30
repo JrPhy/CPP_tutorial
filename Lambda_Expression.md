@@ -86,11 +86,11 @@ int cmp = [] (double a, double b) { return a + b; }(6.5, 4.9);
 2. 在寫一些簡短的表達式或判斷是就不用再去另外寫個 inline 函數，可以減少編譯的時間
 3. 對於相同表達式但不同值的函數可以直接做修改，例如在 sort 的最後一個引數式決定要升序還降序，此時就需要寫兩個函數，但是使用 Lambda Expression，我們就可以直接寫在最後面，不用另外在寫一個函數。
 ```cpp
-int number[] = {3, 5, 1, 6, 9};
-std::sort(begin(number), end(number),
+std::vector<int> numbers { 1, 2, 3, 4, 5, 10, 15, 20, 25, 35, 45, 50 };
+std::sort(numbers.begin(), numbers.end(),
         [] (int a, int b) { return a < b; });
 // 升序，由小到大
-std::sort(begin(number), end(number),
+std::sort(numbers.begin(), numbers.end(),
         [] (int a, int b) { return a > b; });
 // 降序，由小到大
 ```
