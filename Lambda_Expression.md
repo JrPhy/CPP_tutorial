@@ -15,21 +15,24 @@ int main() {
 } 
 ```
 ## 1. 呼叫
-Lambda Expression 在使用上比較偏向函數，如果沒有回傳值則必須緊接在 } 後面呼叫，否則編譯器會報錯。
+Lambda Expression 在使用上比較偏向函數，如果沒有回傳值則必須緊接在 } 後面呼叫，或是要用函數指標接再呼叫，否則編譯器會報錯。
 ```cpp
 #include <iostream> 
 #include <algorithm>
 using namespace std; 
 
 int main() { 
+    [] { printf("Hello World\n"); }()
+    // 直接呼叫 Lambda Expression
     int cmp = [] (double a, double b) {
         return a + b;
     }(6.5, 4.9);
+    void(*hello)() = [] { printf("Hello World\n"); };
+    // 將 lambda 表示放入函數指標內
     std::cout << cmp << std::endl;
     // 回傳為 double，但因為 cmp 為整數，故會被轉型
-    [] { printf("Hello World\n"); }()
-    // 直接呼叫 Lambda Expression
-    // Hello World
+    hello();
+    // 呼叫該 Lambda Expression
     return 0; 
 } 
 ```
@@ -79,6 +82,9 @@ int cmp = [] (double a, double b) { return a + b; }(6.5, 4.9);
 [] { printf("Hello World\n"); }()
 // 直接呼叫 Lambda Expression
 // Hello World
+void(*hello)() = [] { printf("Hello World\n"); };
+hello();
+// 也可以用一個指標函數去接他，需要時再呼叫
 ```
 
 ## 3. Lambda Expression 的好處
