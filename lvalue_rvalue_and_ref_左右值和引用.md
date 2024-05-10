@@ -161,6 +161,7 @@ StringBuidler: deep copy
 StringBuidler: deep copy
 s3.length=15, s1.length=10, s2.length=5
 ```
+#### 2. 函數傳右值引用 &&
 當我們重載 StringBuidler 並傳入右值引用後就少建構與解構一次，也就是直接把 s1 的右值回傳回來。如果說 class 本身很龐大，那就會占掉非常多的記憶體與時間。
 ```cpp
 StringBuidler(StringBuidler&& s) {
@@ -169,3 +170,4 @@ StringBuidler(StringBuidler&& s) {
     s.str = nullptr;
 }
 ```
+在 C++11 後得 STL 容器也提供傳入右值引用的版本。
