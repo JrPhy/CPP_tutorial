@@ -104,7 +104,7 @@ std::string to_string(int value) {
     return s;
 }
 ```
-回傳的時候會開一個大小與 s 的臨時變數 a，再把該變數 s 的值複製到該臨時變數 a，再回傳該臨時變數 a 的值，此稱為身拷貝(deep copy)。找了個[例子](https://www.51cto.com/article/714737.html)來說明這件事，下方例子中編譯時加上 ```-fno-elide-constructors``` 選項關閉優化
+回傳的時候會開一個大小與 s 的臨時變數 a，再把該變數 s 的值複製到該臨時變數 a，再回傳該臨時變數 a 的值，此稱為深拷貝(deep copy)。找了個[例子](https://www.51cto.com/article/714737.html)來說明這件事，下方例子中編譯時加上 ```-fno-elide-constructors``` 選項關閉優化
 ```cpp
 #include <iostream>
 #include <vector>
