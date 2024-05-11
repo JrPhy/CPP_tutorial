@@ -65,24 +65,8 @@ int main ()
 雖然在傳變數的引用可以更有效率，但是在 C++ 中很常遇到需要傳 class 類別進函數中，例如 std::string。傳入時就會遇到一次建構，回傳時可能又會遇到另一次建構，在效能上就會較慢，此為左值引用的短版，在 C++ 中有右值引用來解決這問題。
 
 #### 2. 函數回傳引用
-引用回傳時要小心變數的生命週期，在 C 語言中通常是回傳值，所以是回傳右值。但是引用有變數的位置和值，當函數內的變數一離開函數後即被系統釋放，值自然也消失，故回傳引用時要小心變數的生命週期
-```cpp
-#include <iostream>
-int& add(int i, int j) {  
-    static int temp = i+j;
-    // int temp = i+j;
-    //若沒加上 static 則會得到未預期的結果
-    return temp;
-}
+引用回傳時要小心變數的生命週期，在 C 語言中通常是回傳值，所以是回傳右值。但是引用有變數的位置和值，當函數內的變數一離開函數後即被系統釋放，值自然也消失，故回傳引用時要小心變數的生命週期，所以一般來說**不會返回一個左值引用**。
 
-int main ()
-{
-    int x = 10, y = 20;
-    int sum = add(x, y);
-    printf("%d\n", sum);
-    return 0;
-}
-```
 ## 2. 右值引用 && 某個變數引用右值
 如果右值本身不是從左值轉來的，那麼當表達式結束後右值就會被系統銷毀。而右值引用的意思是有某個變數引用了右值，該變數本身也為左值，否則離開表達式後也會被銷毀。
 ```cpp
@@ -108,8 +92,6 @@ std::string to_string(int value) {
 ```cpp
 #include <iostream>
 #include <vector>
-
-using namespace std;
 
 class StringBuidler {
    public:
@@ -143,7 +125,7 @@ class StringBuidler {
         { tmp.str[index++] = p.str[i]; }
 
         return tmp;
-        }
+    }
 };
 
 int main()
@@ -170,4 +152,87 @@ StringBuidler(StringBuidler&& s) {
     s.str = nullptr;
 }
 ```
+```
+s3.length=15, s1.length=10, s2.length=5
+```
 在 C++11 後得 STL 容器也提供傳入右值引用的版本。
+#### 3. 函數回傳右值引用
+多數情況下不該回傳右值引用，故不再著墨
+
+## 3. 萬能引用 T&&
+在右值引用的例子中看到會在寫個左值引用重載，使得整個 class 使用起來更方便高效，當然搭配 C++ 中的模板(template)使用，在寫函數時就可以省下重複寫程式碼的問題。在使用 template 時編譯器會自動去推導型別，在此也會去推導傳入的是左值引用還是右值引用。當然如果沒有類型推導時，或是用 const 修飾時，&& 代表右值引用
+```cpp
+template<typename T>
+void U_ref(T&& val) {
+    cout << val << endl;
+}
+
+void r_ref(int&& val) {
+    cout << val << endl;
+}
+
+void cr_ref(const T&& val) {
+    cout << val << endl;
+}
+
+int main() {
+    int num = 2019;
+    U_ref(num);  // 左值引用
+    // r_ref(num);  // 錯誤，要傳右值引用
+    // cr_ref(num);  // 錯誤，要傳右值引用
+    U_ref(2019); // 右值引用
+    return 0;
+}
+```
+#### 1. 引用折疊 T&& 與完美轉發 std::forward
+根據規範，萬用引用總共會有四種情況
+
+|   | 定義為 T& | 定義為 T&& |
+| --- | --- | --- |
+| 傳入 & | T& & | T& && |
+| 傳入 && | T& | T& |
+
+在 C++ 中規定摺疊的規則為：若有其一為左值引用，則折疊後為左值引用，否則為右值引用，所以在折疊後會變成下方表格
+|   | 定義為 T&，傳入 & | 定義為 T&，傳入為 && | 定義為 T&&，傳入為 & | 定義為 T&&，傳入為 && |
+| --- | --- | --- | --- | --- |
+| 摺疊前 | T& & | T& && | T&& & | T&& && |
+| 摺疊後 | T& | T& | T& | T&& |
+
+當然在函數呼叫的過程中，有可能遇到定義為右值，但傳入為左值的情況，例如下方例子
+```cpp
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
+template<typename T>
+void func(T& param) {
+    cout << "左值" << endl;
+}
+
+template<typename T>
+void func(T&& param) {
+    cout << "右值" << endl;
+}
+
+template<typename T>
+void test(T&& param) {
+    func(param);
+}
+
+int main() {
+    int num = 2019;
+    test(2019); // 傳右值
+    return 0;
+}
+```
+上方的 test 函數中雖然傳的是右值，但因為傳進 func 時有了別名，這時就變成了左值，所以在摺疊時就變成了左值。如果要保持右值的特性，可以使用 ```std::forward<T>``` 來傳遞
+```cpp
+template<typename T>
+void test(T&& param) {
+    func(std::forward<T>(param));
+}
+```
+
+#### 2. [智慧指標與萬能引用](https://juejin.cn/post/7319903433288187913)
+在[智慧指標](https://github.com/JrPhy/CPP_tutorial/blob/main/Smart_Pointer_%E6%99%BA%E6%85%A7%E6%8C%87%E6%A8%99.md)中提到，要轉移 unique_ptr A 的所有權給另一個 unique_ptr B 要使用 std::move，我們已知 std::move 就是把左值轉為右值，也就是把 A 的值取出轉給 B，轉移後 A 就會被自動解構，這跟內部的實作有關。而若是對 shared_ptr 做 move，則計數為 -1。
