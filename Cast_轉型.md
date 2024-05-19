@@ -31,7 +31,7 @@ int main()
 再呼叫第三方函式庫時有可能僅提供非 const 的版本，但自己在撰寫時則是用 const 宣告要傳入的變數，此時就可以用到 const_cast 將 const 去掉並傳入函數中
 
 ## 2. static_cast
-static_cast 為顯式轉換的操作，即各變數之間的轉換都可使用 static_cast，可看成 C++ 版本中對於各種數值類型的變數和指標的顯式轉換
+static_cast 為顯式轉換的操作，即各變數之間的轉換都可使用 static_cast，可看成 C++ 版本的顯示轉型，對於各種數值類型的變數和指標的顯式轉換。
 ```cpp
 double a = 1.999;
 int b = static_cast<int>(a);
@@ -43,6 +43,53 @@ void* vptr = static_cast<void*>(cptr); // OK
 // error: invalid 'static_cast' from type 'char*' to type 'int*'
 // 相當於 int* vptr = (int*)cptr ;
 ```
+而在類別中的轉換，從子類轉為父類(向上轉)是安全的可以使用 static_cast，因為子類中的成員在父類都會有，反過來就不是，所以從父類轉子類(向下轉)就會有風險，因為沒有動態型別的檢查，通常這種情況需要使用 dynamic_cast。
 
 ## 3. dynamic_cast
+在繼承時如果基類中有個虛函數，表示繼承的子類有可能會複寫該函數，在執行時會生成一個虛函數表，動態時才會決定使用哪個函數。使用 dynamic_cast 時會先檢查是否為父子類的關係，如果不是則會拋出 bad_cast，並使用 try...catch 去捕捉錯誤
+```cpp
+#include <iostream>
+#include <typeinfo>
+
+class Base
+{
+   public:
+    virtual void foo() = 0;
+};
+
+class Derived1 : public Base
+{
+   public:
+    void foo() { std::cout << "Derived1" << std::endl; }
+    void showOne() { std::cout << "Yes! It's Derived1." << std::endl; }
+};
+
+class Derived2 : public Base
+{
+   public:
+    void foo() { std::cout << "Derived2" << std::endl; }
+    void showTwo() { std::cout << "Yes! It's Derived2." << std::endl; }
+};
+
+void showWho(Base& base)
+{
+    try {
+        Derived1 derived1 = dynamic_cast<Derived1&>(base);
+        derived1.showOne();
+    } catch (bad_cast) {
+        std::cout << "bad_cast 轉型失敗" << std::endl;
+    }
+}
+
+int main()
+{
+    Derived1 derived1;
+    Derived2 derived2;
+
+    showWho(derived1); //Yes! It's Derived1.
+    showWho(derived2); //bad_cast 轉型失敗
+    return 0;
+}
+```
+
 ## 4. reinterpret_cast
