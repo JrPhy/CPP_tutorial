@@ -93,4 +93,24 @@ int main()
 ```
 
 ## 4. reinterpret_cast 主要用於指標
+在 C 語言中指標轉型必須先轉到 void* 再轉到其他指標，reinterpret_cast 可以不用經過 void* 而直接轉型。
+```cpp
+#include <iostream>
 
+int main()
+{
+    int num = 55;
+	int* p_int = &num;
+	char* p_char = reinterpret_cast<char *>(p_int);
+	
+	std::cout << *p_int << std::endl;
+	std::cout << std::hex  << *p_int << std::endl;
+    // 0x37
+	std::cout << *p_char << std::endl;
+    // 7 (ascii code 55)
+}
+```
+
+## 5. 轉型選擇
+先看是不是要將 const 或 volatile 拿掉，如果是則用 const_cast。再來看是不是有結構或類別之間的轉換，是的話就用 dynamic_cast。接著再看是不是有指標類型的轉換，如果是的話就用 reinterpret_cast。最後在選 static_cast。
+const_cast --> dynamic_cast --> reinterpret_cast --> static_cast
