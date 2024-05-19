@@ -30,7 +30,7 @@ int main()
 ```
 再呼叫第三方函式庫時有可能僅提供非 const 的版本，但自己在撰寫時則是用 const 宣告要傳入的變數，此時就可以用到 const_cast 將 const 去掉並傳入函數中
 
-## 2. static_cast
+## 2. static_cast 主要用於數值
 static_cast 為顯式轉換的操作，即各變數之間的轉換都可使用 static_cast，可看成 C++ 版本的顯示轉型，對於各種數值類型的變數和指標的顯式轉換。
 ```cpp
 double a = 1.999;
@@ -45,7 +45,7 @@ void* vptr = static_cast<void*>(cptr); // OK
 ```
 而在類別中的轉換，從子類轉為父類(向上轉)是安全的可以使用 static_cast，因為子類中的成員在父類都會有，反過來就不是，所以從父類轉子類(向下轉)就會有風險，因為沒有動態型別的檢查，通常這種情況需要使用 dynamic_cast。
 
-## 3. dynamic_cast
+## 3. dynamic_cast 主要用於父轉子
 在繼承時如果基類中有個虛函數，表示繼承的子類有可能會複寫該函數，在執行時會生成一個虛函數表，動態時才會決定使用哪個函數。使用 dynamic_cast 時會先檢查是否為父子類的關係，如果不是則會拋出 bad_cast，並使用 try...catch 去捕捉錯誤
 ```cpp
 #include <iostream>
@@ -92,4 +92,5 @@ int main()
 }
 ```
 
-## 4. reinterpret_cast
+## 4. reinterpret_cast 主要用於指標
+
