@@ -100,13 +100,13 @@ int main()
 int main()
 {
     int num = 55;
-	int* p_int = &num;
-	char* p_char = reinterpret_cast<char *>(p_int);
+    int* p_int = &num;
+    char* p_char = reinterpret_cast<char *>(p_int);
 	
-	std::cout << *p_int << std::endl;
-	std::cout << std::hex  << *p_int << std::endl;
+    std::cout << *p_int << std::endl;
+    std::cout << std::hex  << *p_int << std::endl;
     // 0x37
-	std::cout << *p_char << std::endl;
+    std::cout << *p_char << std::endl;
     // 7 (ascii code 55)
 }
 ```
