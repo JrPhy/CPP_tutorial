@@ -21,16 +21,23 @@ class Student {
     void setScore(double score) { this->score = score; }
     int getID() const { /*ID = 10; 報錯*/ return ID; }
 };
+```
 
-Student::Student(int _id, int _gender, std::string _name, double _score)
-        :gender(_gender), ID(_id),  name(_name), score(_score) {}
-
-int main()
-{
-    Student Peter(10039, 1, "Peter", 88.88);
-    Peter.get();
-    Peter.setScore(95.8);
-    std::cout << Peter.getID() << std::endl;
-    return 0;
+## 2. constexpr 
+如果想要拿到一個函數返回值並將其設為 const，在 C 是沒辦法辦到的，因為 square 是要在執行期才知道。
+```cpp
+int square(int n) {
+    return n*n;
 }
+const int N = 123;
+// const int sq_N = square(N); // 報錯
+```
+在 C++ 就可以用 constexpr 來修飾函數，就可以放入一個 const 變數，而該 const 變數也是無法被改變。
+```cpp
+constexpr int square(int n) {
+    return n*n;
+}
+const int N = 123;
+const int sq_N = square(N);
+// sq_N = 55; read-only
 ```
