@@ -179,7 +179,7 @@ class Student {
 };
 
 Student::Student(int _id, int _gender, std::string _name, double _score)
-        :gender(_gender), ID(gender),  name(_name), score(_score) {}
+        :gender(_gender), ID(_id),  name(_name), score(_score) {}
 
 int main()
 {
@@ -207,7 +207,7 @@ class Student {
 };
 
 Student::Student(int _id, int _gender, std::string _name, double _score)
-        :gender(_gender), ID(gender), name(_name), score(_score) {}
+        :gender(_gender), ID(_id), name(_name), score(_score) {}
 
 int main()
 {
@@ -238,7 +238,7 @@ class Student {
 };
 
 Student::Student(int _id, int _gender, std::string _name, double _score)
-        :gender(_gender), ID(gender),  name(_name), score(_score) {
+        :gender(_gender), ID(_id), name(_name), score(_score) {
     rank = new int;
 }
 
