@@ -3,3 +3,34 @@
 ## 1. const
 C 語言中有的用法在 C++ 中也相同，但在 C++ 中 const 可置於函數前後
 #### 1. const 置於函數前
+基本上與一般函數使用無異，回傳的值也可以改 ```const int add() {int a = 3; return a;}```
+
+#### 2. const 置於成員函數後
+表示此函數不會修改到成員變數，常用於 get...() 或 print() 的成員函數
+```cpp
+#include <string>
+#include <iostream>
+class Student {
+    int ID;
+    int gender;
+    std::string name;
+    double score;
+   public:
+    Student(int _id, int _gender, std::string _name, double _score);
+    void get(){std::cout << ID << " " << gender << " " << name  << " " << score << std::endl;}
+    void setScore(double score) { this->score = score; }
+    int getID() const { /*ID = 10; 報錯*/ return ID; }
+};
+
+Student::Student(int _id, int _gender, std::string _name, double _score)
+        :gender(_gender), ID(_id),  name(_name), score(_score) {}
+
+int main()
+{
+    Student Peter(10039, 1, "Peter", 88.88);
+    Peter.get();
+    Peter.setScore(95.8);
+    std::cout << Peter.getID() << std::endl;
+    return 0;
+}
+```
