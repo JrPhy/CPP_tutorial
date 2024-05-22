@@ -30,21 +30,43 @@ int main() {
 }
 ```
 
-## 2. constexpr 
+## 2. constexpr C++11
 如果想要拿到一個函數返回值並將其設為 const，在 C 是沒辦法辦到的，因為 square 是要在執行期才知道。
 ```cpp
-int square(int n) {
-    return n*n;
-}
+int square(int n)
+{ return n*n; }
 const int N = 123;
 // const int sq_N = square(N); // 報錯
 ```
 在 C++ 就可以用 constexpr 來修飾函數，就可以放入一個 const 變數，而該 const 變數也是無法被改變。
 ```cpp
-constexpr int square(int n) {
-    return n*n;
+constexpr int square(int n)
+{ return n*n; }
+
+int main() {
+    const int N = 123;
+    const int sq_N_c = square(44);
+    const int sq_N_r = square(N);
+    // sq_N = 55; read-only
+    return 0;
 }
-const int N = 123;
-const int sq_N = square(N);
-// sq_N = 55; read-only
 ```
+從上方例子可以知道，不論在編譯或執行期都可成功編譯與執行，因為編譯器都會直接做掉。在 C++11 只能寫一些簡單的函數，若內部有其他流程或變數宣告則會錯誤，但在 C++14 之後就可以支援較複雜的函數。
+```cpp
+constexpr int factorial(int n) {
+    int r = 1; // C++11 會報錯
+    do {r *= n;} while (--n);
+    return r;
+}
+
+int main() {
+    const int N = 123;
+    const int sq_N_c = square(44);
+    const int sq_N_r = square(N);
+    // sq_N = 55; read-only
+    return 0;
+}
+```
+
+## 2. consteval/constinit C++20
+constexpr 是在編譯與執行期都可以成功執行。而在 C++20 中則是將 consteval/constinit 獨立出來，必須要在**編譯期**就能知道結果。這可以讓編譯性能提高。
