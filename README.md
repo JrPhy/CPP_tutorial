@@ -9,3 +9,5 @@ int A[n]; // C++ 編譯器會報錯，C 不會
 而 C++ 標準從早期的 C++89、C++03，然後從 C++11 開始幾乎是三年就一個新標準，每個標準加入的東西也非常多，C++14 支援了 lambda 運算式，詳細可以去看各個標準的規格書。當然因為 C++ 包含大部分 C 語言的特性，所以在撰寫時會以 C 語言沒有的特性去撰寫，其餘請參考 C 語言的文章。
 
 C++ 可以當作是有 class 的 C，而 class 為物件導向的語法，用來做封裝與繼承，且在 C++ 中支援樣板 (template) 來達成[泛型函數](https://github.com/JrPhy/C_tutorial/blob/main/CH8-%E6%8C%87%E6%A8%99%E8%88%87%E5%87%BD%E6%95%B8.md#3-%E6%8C%87%E6%A8%99%E5%87%BD%E6%95%B8%E7%95%B6%E4%BD%9C%E5%BC%95%E6%95%B8)，不過樣板會有比較高的編譯時間，但對於大型程式開發可以換來更好的可讀性與維護性。
+
+https://meetingcpp.com/mcpp/books/book.php?hash=d6176cbb9cae6aa6304cfb89c1cbe61cd7c9455d
