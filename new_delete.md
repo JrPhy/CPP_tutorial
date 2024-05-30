@@ -112,7 +112,7 @@ int main() {
         printf("same start point\n");
     } 
     else {
-        printf("没有进行原地重新分配\n");
+        printf("沒有重新分配\n");
         memcpy(newArray, array, 5 * sizeof(int));
         free(array);
     }
