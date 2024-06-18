@@ -11,3 +11,5 @@ int A[n]; // C++ 編譯器會報錯，C 不會
 C++ 可以當作是有 class 的 C，而 class 為物件導向的語法，用來做封裝與繼承，且在 C++ 中支援樣板 (template) 來達成[泛型函數](https://github.com/JrPhy/C_tutorial/blob/main/CH8-%E6%8C%87%E6%A8%99%E8%88%87%E5%87%BD%E6%95%B8.md#3-%E6%8C%87%E6%A8%99%E5%87%BD%E6%95%B8%E7%95%B6%E4%BD%9C%E5%BC%95%E6%95%B8)，不過樣板會有比較高的編譯時間，但對於大型程式開發可以換來更好的可讀性與維護性。
 
 https://meetingcpp.com/mcpp/books/book.php?hash=d6176cbb9cae6aa6304cfb89c1cbe61cd7c9455d
+
+從 C++11 起被稱為 Modern C++，裡面除了新增許多特性，如 Smart pointer 可以不用讓開發者不用去想指標是否被釋放，auto (與 C 的不同) 讓編譯器去自動推導型別，Lambda function 讓函數裡面可以寫函數，右值引用讓傳入 class 可以少呼叫一次複製的建構子，還有將 thread 野放進 std 中，比 pthread 更好用。
