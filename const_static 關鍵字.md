@@ -95,3 +95,4 @@ int main() {
     return 0;
 }
 ```
+也因為只有一份，所以在設計模式中有一種是**單例模式 Singleton**，一般來說是當一個 class 的 member function 做了很多事花很多資源，那就會使用到，通常會設計成 private static。
