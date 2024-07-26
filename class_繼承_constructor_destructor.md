@@ -157,8 +157,19 @@ public:
     derived() { std::cout << "derived constructor\n"; };
     ~derived() { std::cout << "derived destructor\n"; };
     void do_something() { std::cout << "derived do_something\n"; };
-    void exec() = {...};
+    void exec() { std::cout << "derived exec\n"; };
 };
 ```
 在 base 中有個 ```virtual void exec() = 0;``` 即告訴開發者，每個繼承此類的函數都需要有一個自己的 exec() 實作，如果沒有的話編譯器就會報錯。\
 雖然 virtual 關鍵字可以避免呼叫錯誤的函數，但因為使用此修飾後是在 run-time 才會決定執行哪個函數，也就是在編譯期間會多產生一個 vtable 來建立對應關係，並在 run-time 去尋找該函數是否有被子類覆寫，此稱為動態綁定(dynamic binding)，所以如果每個父類函數都用此修飾，那麼程式在編譯與執行效能就會下降，所以 C++11 引入了 override 跟 final 兩關鍵字來解決這問題。
+
+## 2. 覆寫 override 與重載 overload
+兩者最大的差異在於，覆寫是有上下關係的成員，且介面需要完全一樣，重載則是兩個不相關的物件。在編譯後 override 的函數會生成一個 function pointer，並建立一個 vtable。因為介面完全一樣，所以在執行期間可以直接將 pointer 指過去，就可以知道要使用哪一個\
+![image](https://miro.medium.com/v2/resize:fit:640/format:webp/1*eFekC5vlinvUw-oXB4wbNw.png)\
+[可參考這篇的回覆](https://stackoverflow.com/questions/4548145/low-level-details-of-inheritance-and-polymorphism)。而 overload 函數雖然在程式碼中函數名稱都相同，但實際上編譯過後換生成不同名字的函數。例如下方兩函數經過編譯後會變成
+```cpp
+int square(int num) {return num * num;}
+// _Z6squarei
+float square(float num) {return num * num;}
+// _Z6squarei
+```
