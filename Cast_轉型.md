@@ -50,45 +50,53 @@ void* vptr = static_cast<void*>(cptr); // OK
 ```cpp
 #include <iostream>
 #include <typeinfo>
+using namespace std;
 
-class Base
-{
-   public:
-    virtual void foo() = 0;
-};
-
-class Derived1 : public Base
-{
-   public:
-    void foo() { std::cout << "Derived1" << std::endl; }
-    void showOne() { std::cout << "Yes! It's Derived1." << std::endl; }
-};
-
-class Derived2 : public Base
-{
-   public:
-    void foo() { std::cout << "Derived2" << std::endl; }
-    void showTwo() { std::cout << "Yes! It's Derived2." << std::endl; }
-};
-
-void showWho(Base& base)
-{
-    try {
-        Derived1 derived1 = dynamic_cast<Derived1&>(base);
-        derived1.showOne();
-    } catch (bad_cast) {
-        std::cout << "bad_cast 轉型失敗" << std::endl;
+class MyBaseClass {
+public:
+    virtual void print() {
+        std::cout << "Printing from MyBaseClass" << std::endl;
     }
-}
+};
 
-int main()
-{
-    Derived1 derived1;
-    Derived2 derived2;
+class MyClass1 : public MyBaseClass {
+public:
+    void print() override {
+        std::cout << "Printing from MyClass1" << std::endl;
+    }
+};
 
-    showWho(derived1); //Yes! It's Derived1.
-    showWho(derived2); //bad_cast 轉型失敗
-    return 0;
+class MyClass2 : public MyBaseClass {
+public:
+    void print() override {
+        std::cout << "Printing from MyClass2" << std::endl;
+    }
+};
+
+class MyClass3 : public MyBaseClass {
+public:
+    void print() override {
+        std::cout << "Printing from MyClass3" << std::endl;
+    }
+};
+
+int main() {
+    MyBaseClass *base1 = new MyBaseClass();
+    base1->print();
+    MyClass2 *pd2 = dynamic_cast<MyClass2 *>(base1);
+    base1->print();
+    MyClass2 *pd3 = new MyClass2();
+    base1 = pd3;
+    base1->print();
+    
+    MyClass1 derive1;
+    try {
+        MyClass2 c = dynamic_cast<MyClass2&>(derive1);
+        c.print();
+    }
+    catch(bad_cast) {
+        cout << "bad_cast 轉型失敗" << endl;
+    }
 }
 ```
 
