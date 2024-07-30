@@ -95,4 +95,25 @@ int main() {
     return 0;
 }
 ```
-也因為只有一份，所以在設計模式中有一種是**單例模式 Singleton**，一般來說是當一個 class 的 member function 做了很多事花很多資源，那就會使用到，通常會設計成 private static。
+也因為只有一份，所以在設計模式中有一種是**單例模式 Singleton**，一般來說是當一個 class 的 member function 做了很多事花很多資源，那就會使用到，通常會設計成 private static。而 static member 是跟著 class 的不是跟著物件的，所以即便沒有生成物件也可以使用 static member。向下方例子雖然沒有建構 Object，但 counter 與 getCounter() 都為 static，所以最終輸出的結果為 1。
+```cpp
+#include <iostream>
+
+class Object {
+public:
+    Object() {
+        ++counter;
+        std::cout << "counter = " << counter << std::endl;
+    }
+    static int getCounter(){return ++counter;}
+private:
+    static int counter;
+};
+
+int Object::counter = 0; // initializing the static int
+
+int main() {
+    std::cout << Object::getCounter();
+    return 0;
+}
+```
