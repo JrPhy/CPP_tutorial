@@ -5,23 +5,19 @@
 #### 1. 函數重載
 ```cpp
 #include <iostream>
-void print(int var)
-{
+void print(int var) {
     std::cout << "Integer number: " << var << std::endl;
 }
 
-void print(float var)
-{
+void print(float var) {
     std::cout << "Float number: "<< var << std::endl;
 }
 
-void print(int var1, float var2)
-{
+void print(int var1, float var2) {
     std::cout << "Integer number: " << var1;
     std::cout << " and float number:" << var2;
 }
-int main()
-{
+int main() {
     int a = 5;
     float b = 5.5;
     print(a);
@@ -43,8 +39,7 @@ int main()
 #include <iostream>
 #include <vector>
 
-class Matrix
-{
+class Matrix {
    public:
     Matrix() {};
     friend Matrix operator+(Matrix &,Matrix &); // "+" 重載
@@ -64,8 +59,7 @@ Matrix operator+(Matrix &a,Matrix &b) // "+" 重載實作
     }
     return c;
 }
-void Matrix::input(std::vector<std::vector<int> > mat)
-{
+void Matrix::input(std::vector<std::vector<int> > mat) {
     std::cout << "input value of matrix:" << std::endl;
     for (int i = 0; i < mat.size(); i++) { 
         for (int j = 0; j < mat[i].size(); j++) {
@@ -73,8 +67,7 @@ void Matrix::input(std::vector<std::vector<int> > mat)
         }
     } 
 }
-void Matrix::display()
-{
+void Matrix::display() {
     for(int i = 0; i < 2; i++) {
         for(int j = 0; j < 3; j++) {
             std::cout << mat[i][j] << " ";
@@ -82,8 +75,7 @@ void Matrix::display()
         std::cout<<endl;
     }
 }
-int main()
-{
+int main() {
     Matrix a,b,c;
     std::vector<std::vector<int> > mat_a{ { 1, 2, 3 }, 
                                           { 4, 5, 6 }, 
@@ -111,13 +103,12 @@ class base {
    public:
     void print() { std::cout << "base\n "; };
 };
-class derived:public base{
+class derived:public base {
    public:
     void print() { std::cout << "derived\n "; }; // Override
     void print(int var) { std::cout << "derived: " << var; }; // Overload
 };
-int main()
-{
+int main() {
     derived p;
     int a = 5;
     float b = 5.5;
