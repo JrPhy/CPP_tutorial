@@ -109,6 +109,11 @@ int main() {
     delete p;
     return 0;
 }
+/*
+base constructor
+derived constructor
+base destructor
+*/
 ```
 #### 4. virtual 關鍵字
 virtual 關鍵字只能用在普通或是解構函數，用來告訴編譯器這個函數**有可能**會在子類被改寫。所以在上述例子中，子類的解構函數被改寫了，如果一個類是會被別的類繼承，那最好在他的解構函數前加上 virtual 關鍵字。
