@@ -171,5 +171,5 @@ public:
 int square(int num) {return num * num;}
 // _Z6squarei
 float square(float num) {return num * num;}
-// _Z6squarei
+// _Z6squaref
 ```
