@@ -27,6 +27,7 @@ C++ 20 中僅提供關鍵字讓編譯器去辨認，並沒有一個很好的封�
 function* generator() {
     for (let i = 1; i <= 5; i++) {
         yield i; // 逐步產生數值
+        console.log("產生值!");
     }
     return; // 結束產生器
 }
@@ -50,8 +51,28 @@ async function main() {
 }
 
 main();
-
 ```
+在 js 中如果函數中有 await 關鍵字，那麼函數就需要用 async 關鍵字修飾，所以 main 函數中有 ```await asyncExample()``` 那就需要用 async 修飾，asyncExample 函數也是如此，generator 中則不需要，而 generator 中有個 yield 關鍵字，會讓函數執行到此段後先暫停，帶回傳該值後再從原本執行到的地方繼續下去。執行結果如下
+```
+main();
+開始迭代產生器...
+收到值: 1
+產生值!
+收到值: 2
+產生值!
+收到值: 3
+產生值!
+收到值: 4
+產生值!
+收到值: 5
+產生值!
+執行非同步函數...
+開始非同步函數...
+Promise {<pending>}
+非同步作業完成!
+收到非同步結果: 42
+```
+可以看到雖然 generator() 先被執行，但卻不是先將 generator() 執行完再去執行 ```for (let value of gen) { console.log("收到值:", value); }```，而是收到值與產生值交替出現，就是 yield 的特性。交替執行完後就開始順序往下執行，而執行到 ```await new Promise(resolve => setTimeout(resolve, 1000));``` 就會等待 1 秒後在繼續往下執行，最後就會出現 ```收到非同步結果: 42```。若沒有 await，async 函式仍然返回 Promise，但是會在收到非同步結果後才出現，因為 Promise 本身是多線程的。
 ```C++
 #include <iostream>
 #include <coroutine>
@@ -60,64 +81,70 @@ main();
 
 struct Generator {
     struct promise_type {
-        int current_value;
+        int value;
         Generator get_return_object() { 
-            return Generator{std::coroutine_handle<promise_type>::from_promise(*this)}; 
+            return Generator{std::coroutine_handle<promise_type>::from_promise(*this)};
         }
-        std::suspend_always initial_suspend() { return {}; }
+        
+        std::suspend_never initial_suspend() { return {}; }
         std::suspend_always final_suspend() noexcept { return {}; }
-        std::suspend_always yield_value(int value) {
-            current_value = value;
+        
+        std::suspend_always yield_value(int v) {
+            value = v;
             return {};
         }
-        void return_void() {}
+
+        void return_value(int v) {
+            value = v; // 支援 `co_return` 來設置最終值
+        }
+
         void unhandled_exception() { std::terminate(); }
     };
 
     std::coroutine_handle<promise_type> handle;
-
     Generator(std::coroutine_handle<promise_type> h) : handle(h) {}
+    Generator() : handle(nullptr) {}
     ~Generator() { if (handle) handle.destroy(); }
 
-    int next() {
-        if (!handle || handle.done()) return -1;
-        handle.resume();
-        return handle.promise().current_value;
-    }
+    struct iterator {
+        std::coroutine_handle<promise_type> handle;
+        bool operator!=(std::nullptr_t) const { return !handle.done(); }
+        iterator& operator++() { handle.resume(); return *this; }
+        int operator*() const { return handle.promise().value; }
+    };
+
+    iterator begin() { handle.resume(); return iterator{handle}; }
+    std::nullptr_t end() { return nullptr; }
+
+    bool await_ready() { return false; } // 讓 `co_await` 等待完成
+    void await_suspend(std::coroutine_handle<>) { std::this_thread::sleep_for(std::chrono::seconds(1)); }
+    int await_resume() { return handle.promise().value; }
 };
 
-Generator counter() {
-    for (int i = 1; i <= 5; ++i) {
-        co_yield i; // 使用 co_yield 逐步返回數值
+Generator generator() {
+    for (int i = 1; i <= 5; i++) {
+        co_yield i;
+        std::cout << "產生值!" << std::endl;
     }
-    co_return; // 使用 co_return 結束協程
+    co_return 42; // 允許返回最終結果
 }
 
-struct Awaitable {
-    bool await_ready() { return false; }
-    void await_suspend(std::coroutine_handle<>) {
-        std::this_thread::sleep_for(std::chrono::seconds(1)); // 模擬非同步等待
-    }
-    void await_resume() {}
-};
-
-Generator async_example() {
-    std::cout << "開始非同步協程...\n";
-    co_await Awaitable{}; // 使用 co_await 來模擬等待非同步作業
-    std::cout << "非同步作業完成!\n";
-    co_yield 42; // 使用 co_yield 產生數值
-    co_return;   // 使用 co_return 結束協程
+Generator asyncExample() {
+    std::cout << "開始非同步函數..." << std::endl;
+    co_await Generator{}; // 模擬異步等待
+    std::cout << "非同步作業完成!" << std::endl;
+    co_return 42;
 }
 
 int main() {
-    Generator gen = async_example();
-
-    while (int value = gen.next() && value != -1) {
-        std::cout << "收到值: " << value << '\n';
+    std::cout << "開始迭代產生器..." << std::endl;
+    for (int value : generator()) {
+        std::cout << "收到值: " << value << std::endl;
     }
 
-    std::cout << "協程執行完畢！\n";
-    return 0;
+    std::cout << "執行非同步函數..." << std::endl;
+    Generator asyncTask = asyncExample();
+    std::cout << "收到非同步結果: " << asyncTask.await_resume() << std::endl;
 }
 
 ```
