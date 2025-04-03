@@ -72,7 +72,7 @@ Promise {<pending>}
 非同步作業完成!
 收到非同步結果: 42
 ```
-可以看到雖然 generator() 先被執行，但卻不是先將 generator() 執行完再去執行 ```for (let value of gen) { console.log("收到值:", value); }```，而是收到值與產生值交替出現，就是 yield 的特性。交替執行完後就開始順序往下執行，而執行到 ```await new Promise(resolve => setTimeout(resolve, 1000));``` 就會等待 1 秒後在繼續往下執行，最後就會出現 ```收到非同步結果: 42```。若沒有 await，async 函式仍然返回 Promise，但是會在收到非同步結果後才出現，因為 Promise 本身是多線程的。
+可以看到雖然 generator() 先被執行，但卻不是先將 generator() 執行完再去執行 ```for (let value of gen) { console.log("收到值:", value); }```，而是收到值與產生值交替出現，就是 yield 的特性。交替執行完後就開始順序往下執行，而執行到 ```await new Promise(resolve => setTimeout(resolve, 1000));``` 就會等待 1 秒後在繼續往下執行，最後就會出現 ```收到非同步結果: 42```。若沒有 await，async 函式仍然返回 Promise，但是會在收到非同步結果後才出現，因為 Promise 本身是多線程的。C++ 中雖然有 std::async 關鍵字，但是與 js 中的有非常大的不同，std::async 仍是另外開執行續，並搭配 std::future 中的 future.get() 來阻塞等待直到拿到值，並非是協程，以下即為用 c++ coroutine 改寫
 ```C++
 #include <iostream>
 #include <coroutine>
@@ -146,6 +146,13 @@ int main() {
     Generator asyncTask = asyncExample();
     std::cout << "收到非同步結果: " << asyncTask.await_resume() << std::endl;
 }
-
 ```
+promise_type 負責管理協程狀態
 
+yield_value(int v): 當 co_yield 被執行時，暫存數值，並暫停函式。
+
+return_value(int v): 當 co_return 被執行時，設置最終結果。
+
+get_return_object(): 建立 Generator 物件，讓外部可以存取數值。
+
+initial_suspend() 和 final_suspend() 控制協程開始與結束的行為。
