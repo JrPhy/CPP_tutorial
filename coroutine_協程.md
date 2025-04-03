@@ -126,14 +126,13 @@ Generator generator() {
         co_yield i;
         std::cout << "產生值!" << std::endl;
     }
-    co_return 42; // 允許返回最終結果
+    co_return 42;
 }
 
 Generator asyncExample() {
     std::cout << "開始非同步函數..." << std::endl;
     co_await Generator{}; // 模擬異步等待
     std::cout << "非同步作業完成!" << std::endl;
-    co_return 42;
 }
 
 int main() {
