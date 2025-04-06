@@ -29,40 +29,40 @@ C++ 20 中僅提供關鍵字讓編譯器去辨認，並沒有一個很好的封�
 
 struct simple
 {
-	struct promise_type
-	{
-		static void* operator new(std::size_t s)
-		{
-			printf("new operator size=%zd\n", s);
-			return ::operator new(s);
-		}
+    struct promise_type
+    {
+        static void* operator new(std::size_t s)
+        {
+            printf("new operator size=%zd\n", s);
+            return ::operator new(s);
+        }
 
-		static void operator delete(void* ptr, std::size_t s)
-		{
-			printf("delete operator size=%zd\n", s);
-			::operator delete(ptr);
-		}
+        static void operator delete(void* ptr, std::size_t s)
+        {
+            printf("delete operator size=%zd\n", s);
+            ::operator delete(ptr);
+        }
 
-		int value = 0;
+        int value = 0;
 
-		simple get_return_object() noexcept { return simple(std::coroutine_handle<promise_type>::from_promise(*this)); }
-		std::suspend_never initial_suspend() noexcept { return {}; }
-		std::suspend_always final_suspend() noexcept { return {}; }
-		void unhandled_exception() noexcept { }
-		void return_value(int v) noexcept { value = v; }
-	};
+        simple get_return_object() noexcept { return simple(std::coroutine_handle<promise_type>::from_promise(*this)); }
+        std::suspend_never initial_suspend() noexcept { return {}; }
+        std::suspend_always final_suspend() noexcept { return {}; }
+        void unhandled_exception() noexcept { }
+        void return_value(int v) noexcept { value = v; }
+    };
 
-	simple(std::coroutine_handle<promise_type> coro) noexcept : m_coro(coro) { }
-	simple(simple&& other) noexcept : m_coro(other.m_coro) { other.m_coro = nullptr; }
-	~simple()
-	{
-		if (m_coro)
-			m_coro.destroy();
-	}
+    simple(std::coroutine_handle<promise_type> coro) noexcept : m_coro(coro) { }
+    simple(simple&& other) noexcept : m_coro(other.m_coro) { other.m_coro = nullptr; }
+    ~simple()
+    {
+        if (m_coro)
+            m_coro.destroy();
+    }
 
-	int value() const noexcept { return m_coro.promise().value; }
+    int value() const noexcept { return m_coro.promise().value; }
 
-	std::coroutine_handle<promise_type> m_coro;
+    std::coroutine_handle<promise_type> m_coro;
 };
 
 simple Simple() noexcept
@@ -70,8 +70,8 @@ simple Simple() noexcept
 
 int main()
 {
-	simple t = Simple();
-	printf("Return value=%d\n", t.value());
+    simple t = Simple();
+    printf("Return value=%d\n", t.value());
 }
 ```
 其中的 promise_type 在其他語言中相當於 async 關鍵字，必定會有以下成員，可以當作 promise_type 的最低需求樣板。此例子中的成員分別有以下用途
