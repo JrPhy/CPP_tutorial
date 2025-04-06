@@ -21,8 +21,81 @@ co_return 放值進 promise 並結束此協程\
 #### 1. stackless 無棧的意思
 在 C/C++ 中的函數如果有執行到，編譯器都會去分配一個 stack 空間，執行完就釋放。而當把函數放進 Thread 中，那麼在每個 Thread 裡面都會去開一個 stack 放該函數，所以開 n 個 Thread 就會分配 n 個 stack 函數的空間。而如果是協程函數，那在一個 process 中只會有一個 stack 函數的空間，直到要再呼叫時再回到此函數，這也是為什麼協程函數會比線程省資源的原因。
 
-#### 2. 協程函數範例
-C++ 20 中僅提供關鍵字讓編譯器去辨認，並沒有一個很好的封裝，所以實作的部分還需要自行實作，在此先來看 JS 中用 async/await 的協程例子
+#### 2. promise_type
+C++ 20 中僅提供關鍵字讓編譯器去辨認，並沒有一個很好的封裝，所以實作的部分還需要自行實作，在此先來看一個[簡單的例子](https://github.com/chaelim/Coroutine/blob/master/Examples/simple.cpp)
+```C++
+#include <coroutine>
+#include <cstdio>
+
+struct simple
+{
+	struct promise_type
+	{
+		static void* operator new(std::size_t s)
+		{
+			printf("new operator size=%zd\n", s);
+			return ::operator new(s);
+		}
+
+		static void operator delete(void* ptr, std::size_t s)
+		{
+			printf("delete operator size=%zd\n", s);
+			::operator delete(ptr);
+		}
+
+		int value = 0;
+
+		simple get_return_object() noexcept { return simple(std::coroutine_handle<promise_type>::from_promise(*this)); }
+		std::suspend_never initial_suspend() noexcept { return {}; }
+		std::suspend_always final_suspend() noexcept { return {}; }
+		void unhandled_exception() noexcept { }
+		void return_value(int v) noexcept { value = v; }
+	};
+
+	simple(std::coroutine_handle<promise_type> coro) noexcept : m_coro(coro) { }
+	simple(simple&& other) noexcept : m_coro(other.m_coro) { other.m_coro = nullptr; }
+	~simple()
+	{
+		if (m_coro)
+			m_coro.destroy();
+	}
+
+	int value() const noexcept { return m_coro.promise().value; }
+
+	std::coroutine_handle<promise_type> m_coro;
+};
+
+simple Simple() noexcept
+{ co_return 42; }
+
+int main()
+{
+	simple t = Simple();
+	printf("Return value=%d\n", t.value());
+}
+```
+其中的 promise_type 在其他語言中相當於 async 關鍵字，必定會有以下成員，可以當作 promise_type 的最低需求樣板。此例子中的成員分別有以下用途
+```
+simple get_return_object() noexcept { return simple(std::coroutine_handle<promise_type>::from_promise(*this)); }
+// 負責從 promise_type 產生 std::coroutine_handle，讓外部可以使用協程的控制權。這樣我們可以在 main() 中使用 simple 物件，存取其返回值。
+std::suspend_never initial_suspend() noexcept { return {}; }
+// 初始化協程，std::suspend_never 表示協程會直接執行而不會停下來等待。
+std::suspend_always final_suspend() noexcept { return {}; }
+// 結束協程，std::suspend_always 表示協程執行完畢後 會進入暫停狀態，而不會立即被銷毀，允許外部控制其結束時的行為。
+void unhandled_exception() noexcept { }
+void return_value(int v) noexcept { value = v; }
+// 當 co_return 被使用時，這個函數負責將返回的值存入 value 變數中，讓外部可以使用它。如 Simple() 中的 co_return 42;。若不使用則引數與實作皆為空
+```
+執行後會得到下列結果，一開始在建構 simple 會先計算整體的大小，然後呼叫協程並印出協程的返回值，最後在銷毀 simple。
+```
+new operator size=40
+Return value=42
+delete operator size=40
+```
+
+#### 3. co_return 與 co_yield
+
+JS 中用 async/await 的協程例子
 ```JS
 function* generator() {
     for (let i = 1; i <= 5; i++) {
