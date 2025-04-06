@@ -14,9 +14,9 @@
 ## 二、C++ 中的 coroutine
 coroutine 在 C++ 20 中才算剛起步，僅有一些關鍵字讓編譯器知道該函數為協程函數，其餘都需要自行實作。在 C++ 20 中的協程是 [stackless](https://en.cppreference.com/w/cpp/language/coroutines)，且當函數中有 ```co_await, co_yield, co_return``` 這三個關鍵字，那麼此函數即為協程函數，編譯器會去認這三個關鍵字。
 
-co_await：等待一個可等待的物件完成。當執行到 co_await 時，協程的執行會暫停，讓出控制權給調度器，直到可等待物件完成後再繼續執行。\
-co_yield：這個關鍵字用於暫停當前的協程並返回一個值，而協程的狀態會被保留下來，當再次調用時，它會從上次暫停的地方繼續執行。\
-co_return：這個關鍵字用來終止協程並返回一個結果值。它類似於一般函數中的 return，但專門用於協程，確保適當處理返回值的類型。
+co_await 協程暫停和恢復的點\
+co_yield 是用暫停協程并且放值進 promise\
+co_return 放值進 promise 並結束此協程\
 
 #### 1. stackless 無棧的意思
 在 C/C++ 中的函數如果有執行到，編譯器都會去分配一個 stack 空間，執行完就釋放。而當把函數放進 Thread 中，那麼在每個 Thread 裡面都會去開一個 stack 放該函數，所以開 n 個 Thread 就會分配 n 個 stack 函數的空間。而如果是協程函數，那在一個 process 中只會有一個 stack 函數的空間，直到要再呼叫時再回到此函數，這也是為什麼協程函數會比線程省資源的原因。
