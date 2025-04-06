@@ -14,4 +14,4 @@ C++ 可以當作是有 class 的 C，而 class 為物件導向的語法，用來
 
 https://meetingcpp.com/mcpp/books/book.php?hash=d6176cbb9cae6aa6304cfb89c1cbe61cd7c9455d
 
-從 C++11 起被稱為 Modern C++，裡面除了新增許多特性，如 Smart pointer 可以不用讓開發者不用去想指標是否被釋放，auto (與 C 的不同) 讓編譯器去自動推導型別，Lambda function 讓函數裡面可以寫函數，右值引用讓傳入 class 可以少呼叫一次複製的建構子，還有將 thread 野放進 std 中，比 pthread 更好用。
+從 C++11 起被稱為 Modern C++，裡面除了新增許多特性，如 Smart pointer 可以不用讓開發者不用去想指標是否被釋放，auto (與 C 的不同) 讓編譯器去自動推導型別，Lambda function 讓函數裡面可以寫函數，右值引用讓傳入 class 可以少呼叫一次複製的建構子，還有將 thread 也放進 std 中，比 pthread 更好用。
