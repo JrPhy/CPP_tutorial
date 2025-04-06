@@ -27,55 +27,44 @@ C++ 20 中僅提供關鍵字讓編譯器去辨認，並沒有一個很好的封�
 #include <coroutine>
 #include <cstdio>
 
-struct simple
-{
-    struct promise_type
-    {
-        static void* operator new(std::size_t s)
-        {
+struct Generator {
+    struct promise_type {
+        static void* operator new(std::size_t s) {
             printf("new operator size=%zd\n", s);
             return ::operator new(s);
         }
 
-        static void operator delete(void* ptr, std::size_t s)
-        {
+        static void operator delete(void* ptr, std::size_t s) {
             printf("delete operator size=%zd\n", s);
             ::operator delete(ptr);
         }
-
         int value = 0;
-
-        simple get_return_object() noexcept { return simple(std::coroutine_handle<promise_type>::from_promise(*this)); }
+        Generator get_return_object() noexcept { return Generator(std::coroutine_handle<promise_type>::from_promise(*this)); }
         std::suspend_never initial_suspend() noexcept { return {}; }
         std::suspend_always final_suspend() noexcept { return {}; }
         void unhandled_exception() noexcept { }
         void return_value(int v) noexcept { value = v; }
     };
-
-    simple(std::coroutine_handle<promise_type> coro) noexcept : m_coro(coro) { }
-    simple(simple&& other) noexcept : m_coro(other.m_coro) { other.m_coro = nullptr; }
-    ~simple()
-    {
-        if (m_coro)
-            m_coro.destroy();
+    std::coroutine_handle<promise_type> handle;
+    Generator(std::coroutine_handle<promise_type> coro) noexcept : handle(coro) { }
+    Generator(Generator&& other) noexcept : handle(other.handle) { other.handle = nullptr; }
+    ~Generator() {
+        if (handle)
+            handle.destroy();
     }
-
-    int value() const noexcept { return m_coro.promise().value; }
-
-    std::coroutine_handle<promise_type> m_coro;
+    int value() const noexcept { return handle.promise().value; }
 };
 
-simple Simple() noexcept
+Generator generator() noexcept
 { co_return 42; }
 
-int main()
-{
-    simple t = Simple();
+int main() {
+    Generator t = generator();
     printf("Return value=%d\n", t.value());
 }
 ```
 其中的 promise_type 在其他語言中相當於 async 關鍵字，必定會有以下成員，可以當作 promise_type 的最低需求樣板。此例子中的成員分別有以下用途
-```
+```c++
 simple get_return_object() noexcept { return simple(std::coroutine_handle<promise_type>::from_promise(*this)); }
 // 負責從 promise_type 產生 std::coroutine_handle，讓外部可以使用協程的控制權。這樣我們可以在 main() 中使用 simple 物件，存取其返回值。
 std::suspend_never initial_suspend() noexcept { return {}; }
@@ -92,9 +81,68 @@ new operator size=40
 Return value=42
 delete operator size=40
 ```
+在此用到了 std::suspend_never 與 std::suspend_always，這兩個會根據場用場景的不同而選擇
+|   | std::suspend_never | std::suspend_always |
+| --- | --- | --- |
+| 終止行為 | 直接清理 | 需手動銷毀 |
+| 適用場景 | 一次性 | 須延遲或回傳值 |
+| 範例 | 計算 | 異步、生成器 |
+#### 3. co_return
+在上述的例子中若要使用 co_return 並返回值，那就要在 promise_type 中的 return_value 中傳值進去，並將數值給成員變數。當然用到 co_return 時通常意味著函數被呼叫完了，所以 final_suspend 通常搭配 std::suspend_always。若是協程函數不想返回值，則需要在另一個類別中寫 return_void，不能與 return_value 寫在同一個 promise_type。
 
-#### 3. co_return 與 co_yield
+#### 4. co_yield
+協程函數更多時候是在等待從其他地方傳來的值或是賦值，在此將上述例子改成生成器的例子，為了讓其使用起來更方便，在前面加上 template
+```c++
+#include <coroutine>
+#include <cstdio>
+#include <iostream>
+template<typename T>
+struct Generator {
+    struct promise_type {
+        static void* operator new(std::size_t s) {
+            printf("new operator size=%zd\n", s);
+            return ::operator new(s);
+        }
 
+        static void operator delete(void* ptr, std::size_t s) {
+            printf("delete operator size=%zd\n", s);
+            ::operator delete(ptr);
+        }
+        T value;
+        Generator get_return_object() noexcept { return Generator(std::coroutine_handle<promise_type>::from_promise(*this)); }
+        std::suspend_always initial_suspend() noexcept { return {}; }
+        std::suspend_always final_suspend() noexcept { return {}; }
+        void return_void() {}
+        void unhandled_exception() noexcept { }
+        std::suspend_always yield_value(T v) { value = v; return {}; }
+    };
+    std::coroutine_handle<promise_type> handle;
+    Generator(std::coroutine_handle<promise_type> coro) noexcept : handle(coro) { }
+    Generator(Generator&& other) noexcept : handle(other.handle) { other.handle = nullptr; }
+    ~Generator() {
+        if (handle)
+            handle.destroy();
+    }
+    T next() {
+        handle.resume(); 
+        return handle.promise().value; 
+    }
+    bool done() const { return handle.done(); }
+};
+
+Generator<int> range(int start, int count) {
+    for (int i = start; i < start + count; ++i)
+        co_yield i;
+}
+
+int main() {
+    auto gen = range(0, 5);
+    while (!gen.done())
+        std::cout << gen.next() << " ";
+    std::cout << "\n";
+    return 0;
+}
+```
 JS 中用 async/await 的協程例子
 ```JS
 function* generator() {
