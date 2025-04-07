@@ -91,7 +91,7 @@ delete operator size=40
 在上述的例子中若要使用 co_return 並返回值，那就要在 promise_type 中的 return_value 中傳值進去，並將數值給成員變數。當然用到 co_return 時通常意味著函數被呼叫完了，所以 final_suspend 通常搭配 std::suspend_always。若是協程函數不想返回值，則需要在另一個類別中寫 return_void，不能與 return_value 寫在同一個 promise_type。
 
 #### 4. co_yield
-協程函數更多時候是在等待從其他地方傳來的值或是賦值，在此將上述例子改成生成器的例子，為了讓其使用起來更方便，在前面加上 template
+協程函數更多時候是在等待從其他地方傳來的值或是賦值，在此將上述例子改成生成器的例子，為了讓其使用起來更方便，在前面加上 template，在此 initial_suspend 使用 suspend_always，因為不希望在函數一建立就呼叫，並加入 ```std::suspend_always yield_value(T v) { value = v; return {}; }``` 來改變值。如此一來就可以寫出類似 python 中的 range。
 ```c++
 #include <coroutine>
 #include <cstdio>
@@ -143,7 +143,7 @@ int main() {
     return 0;
 }
 ```
-JS 中用 async/await 的協程例子
+可以看到 C++20 中的協程只是剛起步，甚至可以說僅提供關鍵字讓編譯器辨認，相較之下 JS 中用 async/await 的協程例子就簡潔許多
 ```JS
 function* generator() {
     for (let i = 1; i <= 5; i++) {
@@ -202,44 +202,36 @@ Promise {<pending>}
 
 struct Generator {
     struct promise_type {
-        int value;
-        Generator get_return_object() { 
-            return Generator{std::coroutine_handle<promise_type>::from_promise(*this)};
-        }
-        
-        std::suspend_never initial_suspend() { return {}; }
-        std::suspend_always final_suspend() noexcept { return {}; }
-        
-        std::suspend_always yield_value(int v) {
-            value = v;
+        int current_value;
+        std::suspend_always yield_value(int value) {
+            current_value = value;
             return {};
         }
-
-        void return_value(int v) {
-            value = v; // 支援 `co_return` 來設置最終值
-        }
-
+        std::suspend_always initial_suspend() { return {}; }
+        std::suspend_always final_suspend() noexcept { return {}; }
+        Generator get_return_object() { return Generator{this}; }
+        void return_void() {}
         void unhandled_exception() { std::terminate(); }
     };
 
-    std::coroutine_handle<promise_type> handle;
-    Generator(std::coroutine_handle<promise_type> h) : handle(h) {}
-    Generator() : handle(nullptr) {}
-    ~Generator() { if (handle) handle.destroy(); }
-
     struct iterator {
         std::coroutine_handle<promise_type> handle;
-        bool operator!=(std::nullptr_t) const { return !handle.done(); }
-        iterator& operator++() { handle.resume(); return *this; }
-        int operator*() const { return handle.promise().value; }
+
+        iterator(std::coroutine_handle<promise_type> h) : handle(h) {}
+        iterator& operator++() {
+            handle.resume();
+            return *this;
+        }
+        int operator*() const { return handle.promise().current_value; }
+        bool operator!=(const iterator&) const { return !handle.done(); }
     };
 
-    iterator begin() { handle.resume(); return iterator{handle}; }
-    std::nullptr_t end() { return nullptr; }
+    std::coroutine_handle<promise_type> handle;
+    Generator(promise_type* p) : handle(std::coroutine_handle<promise_type>::from_promise(*p)) {}
+    ~Generator() { if (handle) handle.destroy(); }
 
-    bool await_ready() { return false; } // 讓 `co_await` 等待完成
-    void await_suspend(std::coroutine_handle<>) { std::this_thread::sleep_for(std::chrono::seconds(1)); }
-    int await_resume() { return handle.promise().value; }
+    iterator begin() { handle.resume(); return iterator{handle}; }
+    iterator end() { return iterator{nullptr}; }
 };
 
 Generator generator() {
@@ -247,32 +239,52 @@ Generator generator() {
         co_yield i;
         std::cout << "產生值!" << std::endl;
     }
-    co_return 42;
 }
 
-Generator asyncExample() {
+struct AsyncExample {
+    struct promise_type {
+        static void* operator new(std::size_t s) {
+            return ::operator new(s);
+        }
+
+        static void operator delete(void* ptr, std::size_t s) {
+            ::operator delete(ptr);
+        }
+        int value = 0;
+        AsyncExample get_return_object() noexcept { return AsyncExample(std::coroutine_handle<promise_type>::from_promise(*this)); }
+        std::suspend_never initial_suspend() noexcept { return {}; }
+        std::suspend_always final_suspend() noexcept { return {}; }
+        void unhandled_exception() noexcept { }
+        void return_value(int v) noexcept { value = v; }
+    };
+    std::coroutine_handle<promise_type> handle;
+    AsyncExample(std::coroutine_handle<promise_type> coro) noexcept : handle(coro) { }
+    AsyncExample(AsyncExample&& other) noexcept : handle(other.handle) { other.handle = nullptr; }
+    ~AsyncExample() {
+        if (handle)
+            handle.destroy();
+    }
+    int value() const noexcept { return handle.promise().value; }
+};
+
+
+AsyncExample asyncExample() {
     std::cout << "開始非同步函數..." << std::endl;
-    co_await Generator{}; // 模擬異步等待
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     std::cout << "非同步作業完成!" << std::endl;
+    co_return 42;
 }
 
 int main() {
     std::cout << "開始迭代產生器..." << std::endl;
-    for (int value : generator()) {
+    for (auto value : generator()) {
         std::cout << "收到值: " << value << std::endl;
     }
 
     std::cout << "執行非同步函數..." << std::endl;
-    Generator asyncTask = asyncExample();
-    std::cout << "收到非同步結果: " << asyncTask.await_resume() << std::endl;
+    auto result = asyncExample();
+    std::cout << "收到非同步結果: " << result.value() << std::endl;
+
+    return 0;
 }
 ```
-promise_type 負責管理協程狀態
-
-yield_value(int v): 當 co_yield 被執行時，暫存數值，並暫停函式。
-
-return_value(int v): 當 co_return 被執行時，設置最終結果。
-
-get_return_object(): 建立 Generator 物件，讓外部可以存取數值。
-
-initial_suspend() 和 final_suspend() 控制協程開始與結束的行為。
