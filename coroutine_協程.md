@@ -1,4 +1,4 @@
-協程這一概念早在 1985 年就已提出，是一個**可以暫停與恢復的函數**。其他語言中已有相關的實作，例如 PYTHON 與 JS 中的 async/await，以及 golang 的 gorouting 等，C++ 則是在 C++20 中才納入標準。在網頁與網頁使用 API 去要資料，或是去跟一些 IOT 設備要資料時，常常是一方去發請求，對方接收到請求後把資料發給你，然後再回一個狀態回去就完成請求。在早期 C/C++ 會使用線程 (Thread) 來實作，但是需要開許多線程，否則若一個線程沒收到資料就會一直阻塞到超時。
+協程這一概念早在 1985 年就已提出，是一個**可以暫停與恢復的函數**。其他語言中已有相關的實作，例如 PYTHON 與 JS 中的 async/await，以及 golang 的 gorouting 等，C++ 則是在 C++20 中才納入標準。在網頁與網頁使用 API 去要資料，或是去跟一些 IOT 設備要資料時，常常是一方去發請求，對方接收到請求後把資料發給你，然後再回一個狀態回去就完成請求。在早期 C/C++ 會使用線程 (Thread) 來實作，但是需要開許多線程，否則若只開一個線程沒收到資料就會一直阻塞到超時。
 | server |  | client | 
 | :---: | :---: | :---: | 
 |  | <--發送請求 |  | 
@@ -6,6 +6,8 @@
 |  | 收到請求，發送資料--> |  | 
 |  | <--收到資料，回覆成功 |  |
 
+而協程就不需要多線程，當呼叫某函數後可以在某個地方掛起，等待某個事件到來再回到該函數中繼續執行
+![img](https://github.com/JrPhy/CPP_tutorial/blob/main/img/coroutine.jpg)\
 ## 一、線程(Thread)與協程(coroutine)
 線程為執行進程(Process)的最小單位，一個進程中可以有多個線程在執行。若是一個進程中有多個線程，就會在該進程的 **stack** 中去分配位置給進程中的線程，若線程數量太多就會需要做 [Context Switch](https://github.com/JrPhy/Multiple_Thread/blob/main/%E4%B8%8A%E4%B8%8B%E6%96%87%E4%BA%A4%E6%8F%9B%E8%88%87%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C.md#2-%E4%B8%8A%E4%B8%8B%E6%96%87%E4%BA%A4%E6%8F%9B-context-switch)，就會需要額外的資源去記錄目前執行到的位置、優先及等數據，並且把紀錄的數據丟進 CPU 的 Register 中，就是一次的 **system call**，所以會盡量避免這件事。且在多線程為了避免 Race Condition，還會使用鎖或信號量這種由 OS 來管理的函數，所以會占用相當多的資源
 
@@ -288,3 +290,6 @@ int main() {
     return 0;
 }
 ```
+
+https://www.cnblogs.com/Netsharp/p/17279750.html\
+https://juejin.cn/post/7312727134297538594\
