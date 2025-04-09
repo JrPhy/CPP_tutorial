@@ -290,6 +290,71 @@ int main() {
     return 0;
 }
 ```
+#### 5. co_await
+在上述例子中仍使用了 thread 來做阻塞，當然用 coroutine 就是不希望開 thread，所以可以改用 co_await．相較於前面兩個關鍵字，在實作 await 時並不需要有 promise_type，而需要以下三個函數
+```
+await_ready() // 是否阻塞
+await_suspend() // 掛起
+await_resume() // 恢復
+```
+若一個類別 A 中含有這三個成員，則 A 為 Awaiter 及 Awaitable，若類別 B 不包含這三個成員，但是包含 A，則 B 為 Awaitable 但不為 Awaiter．
+```C++
+#include <coroutine>
+#include <iostream>
 
+struct Awaiter {
+    bool await_ready() {
+        std::cout << "await ready or not" << std::endl;
+        return true;
+    }
+
+    void await_resume()
+    { std::cout << "await resumed" << std::endl; }
+
+    void await_suspend(std::coroutine_handle<> h)
+    { std::cout << "await suspended" << std::endl; }
+};
+
+struct Promise {
+  struct promise_type {
+    auto get_return_object() noexcept {
+      std::cout << "get return object" << std::endl;
+      return Promise();
+    }
+
+    auto initial_suspend() noexcept {
+      std::cout << "initial suspend, return never" << std::endl;
+      return std::suspend_never{};
+    }
+
+    auto final_suspend() noexcept {
+      std::cout << "final suspend, return never" << std::endl;
+      return std::suspend_never{};
+    }
+
+    void unhandled_exception() {
+      std::cout << "unhandle exception" << std::endl;
+      std::terminate();
+    }
+
+    void return_void() {
+      std::cout << "return void" << std::endl;
+      return;
+    }
+  };
+};
+
+Promise CoroutineFunc() {
+  std::cout << "before co_await" << std::endl;
+  co_await Awaiter();
+  std::cout << "after co_await" << std::endl;
+}
+
+int main() {
+  std::cout << "main() start" << std::endl;
+  CoroutineFunc();
+  std::cout << "main() exit" << std::endl;
+}
+```
 https://www.cnblogs.com/Netsharp/p/17279750.html\
 https://juejin.cn/post/7312727134297538594\
