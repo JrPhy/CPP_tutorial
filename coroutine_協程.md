@@ -303,58 +303,187 @@ await_resume() // 恢復
 #include <iostream>
 
 struct Awaiter {
-    bool await_ready() {
-        std::cout << "await ready or not" << std::endl;
-        return true;
-    }
+	bool await_ready() {
+		std::cout << "await ready or not" << std::endl;
+		return true;
+	}
 
-    void await_resume()
-    { std::cout << "await resumed" << std::endl; }
+	void await_resume()
+	{ std::cout << "await resumed" << std::endl; }
 
-    void await_suspend(std::coroutine_handle<> h)
-    { std::cout << "await suspended" << std::endl; }
+	void await_suspend(std::coroutine_handle<> h)
+	{ std::cout << "await suspended" << std::endl; }
 };
 
 struct Promise {
-  struct promise_type {
-    auto get_return_object() noexcept {
-      std::cout << "get return object" << std::endl;
-      return Promise();
-    }
+	struct promise_type {
+		void get_return_object() { 
+		    std::cout << "get return object" << std::endl;
+		}
 
-    auto initial_suspend() noexcept {
-      std::cout << "initial suspend, return never" << std::endl;
-      return std::suspend_never{};
-    }
+		std::suspend_never initial_suspend() noexcept {
+			std::cout << "initial suspend, return never" << std::endl;
+			return {};
+		}
 
-    auto final_suspend() noexcept {
-      std::cout << "final suspend, return never" << std::endl;
-      return std::suspend_never{};
-    }
+		std::suspend_never final_suspend() noexcept {
+			std::cout << "final suspend, return never" << std::endl;
+			return {};
+		}
 
-    void unhandled_exception() {
-      std::cout << "unhandle exception" << std::endl;
-      std::terminate();
-    }
+		void unhandled_exception() {
+			std::cout << "unhandle exception" << std::endl;
+			std::terminate();
+		}
 
-    void return_void() {
-      std::cout << "return void" << std::endl;
-      return;
-    }
-  };
+		void return_void() {
+			std::cout << "return void" << std::endl;
+			return;
+		}
+	};
 };
 
 Promise CoroutineFunc() {
-  std::cout << "before co_await" << std::endl;
-  co_await Awaiter();
-  std::cout << "after co_await" << std::endl;
+	std::cout << "before co_await" << std::endl;
+	co_await Awaiter();
+	std::cout << "after co_await" << std::endl;
 }
 
 int main() {
-  std::cout << "main() start" << std::endl;
-  CoroutineFunc();
-  std::cout << "main() exit" << std::endl;
+	std::cout << "main() start" << std::endl;
+	CoroutineFunc();
+	std::cout << "main() exit" << std::endl;
 }
 ```
+上述程式實作了一個 Awaiter，這個也是 Awaitable 的類別，所以可以用 co_await 讓此函數被掛起再恢復，下方就是執行結果
+```
+main() start
+get return object
+initial suspend, return never
+before co_await
+await ready or not
+await resumed
+after co_await
+return void
+final suspend, return never
+main() exit
+```
+前面所提到的 std::suspend_always 與 std::suspend_never 則是官方所提供的 Awaiter 類別，所以也可以不用實作 Awaiter 直接將 ```co_await Awaiter();``` 改成 ```std::suspend_always{}```，也可得到相同效果。所以就可以寫一個 Awaiter 來將上述 js 的例子改寫
+```C++
+#include <iostream>
+#include <coroutine>
+#include <chrono>
+
+struct Generator {
+    struct promise_type {
+        int current_value;
+        std::suspend_always yield_value(int value) {
+            current_value = value;
+            return {};
+        }
+        std::suspend_always initial_suspend() { return {}; }
+        std::suspend_always final_suspend() noexcept { return {}; }
+        Generator get_return_object() { return Generator{this}; }
+        void return_void() {}
+        void unhandled_exception() { std::terminate(); }
+    };
+
+    struct iterator {
+        std::coroutine_handle<promise_type> handle;
+
+        iterator(std::coroutine_handle<promise_type> h) : handle(h) {}
+        iterator& operator++() {
+            handle.resume();
+            return *this;
+        }
+        int operator*() const { return handle.promise().current_value; }
+        bool operator!=(const iterator&) const { return !handle.done(); }
+    };
+
+    std::coroutine_handle<promise_type> handle;
+    Generator(promise_type* p) : handle(std::coroutine_handle<promise_type>::from_promise(*p)) {}
+    ~Generator() { if (handle) handle.destroy(); }
+
+    iterator begin() { handle.resume(); return iterator{handle}; }
+    iterator end() { return iterator{nullptr}; }
+};
+
+struct Timer {
+    struct Awaiter {
+        std::chrono::steady_clock::time_point start;
+        std::chrono::milliseconds duration;
+
+        bool await_ready() {
+            return std::chrono::steady_clock::now() - start >= duration;
+        }
+
+        void await_suspend(std::coroutine_handle<> handle) {
+            while (std::chrono::steady_clock::now() - start < duration);
+            handle.resume(); // 時間到達後恢復協程
+        }
+
+        void await_resume() {}
+    };
+
+    static Awaiter sleep_for(std::chrono::milliseconds duration) {
+        return {std::chrono::steady_clock::now(), duration};
+    }
+};
+
+Generator generator() {
+    for (int i = 1; i <= 5; i++) {
+        co_yield i;
+        std::cout << "產生值!" << std::endl;
+    }
+}
+
+struct AsyncExample {
+    struct promise_type {
+        static void* operator new(std::size_t s) {
+            return ::operator new(s);
+        }
+
+        static void operator delete(void* ptr, std::size_t s) {
+            ::operator delete(ptr);
+        }
+        int value = 0;
+        AsyncExample get_return_object() noexcept { return AsyncExample(std::coroutine_handle<promise_type>::from_promise(*this)); }
+        std::suspend_never initial_suspend() noexcept { return {}; }
+        std::suspend_always final_suspend() noexcept { return {}; }
+        void unhandled_exception() noexcept { }
+        void return_value(int v) noexcept { value = v; }
+    };
+    std::coroutine_handle<promise_type> handle;
+    AsyncExample(std::coroutine_handle<promise_type> coro) noexcept : handle(coro) { }
+    AsyncExample(AsyncExample&& other) noexcept : handle(other.handle) { other.handle = nullptr; }
+    ~AsyncExample() {
+        if (handle)
+            handle.destroy();
+    }
+    int value() const noexcept { return handle.promise().value; }
+};
+
+
+AsyncExample asyncExample() {
+    std::cout << "開始非同步函數..." << std::endl;
+    co_await Timer::sleep_for(std::chrono::seconds(1));
+    std::cout << "非同步作業完成!" << std::endl;
+    co_return 42;
+}
+
+int main() {
+    std::cout << "開始迭代產生器..." << std::endl;
+    for (auto value : generator()) {
+        std::cout << "收到值: " << value << std::endl;
+    }
+
+    std::cout << "執行非同步函數..." << std::endl;
+    auto result = asyncExample();
+    std::cout << "收到非同步結果: " << result.value() << std::endl;
+
+    return 0;
+}
+```
+
 https://www.cnblogs.com/Netsharp/p/17279750.html\
 https://juejin.cn/post/7312727134297538594\
