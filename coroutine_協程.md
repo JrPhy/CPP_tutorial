@@ -303,56 +303,56 @@ await_resume() // 恢復
 #include <iostream>
 
 struct Awaiter {
-	bool await_ready() {
-		std::cout << "await ready or not" << std::endl;
-		return true;
-	}
+    bool await_ready() {
+        std::cout << "await ready or not" << std::endl;
+        return true;
+    }
 
-	void await_resume()
-	{ std::cout << "await resumed" << std::endl; }
+    void await_resume()
+    { std::cout << "await resumed" << std::endl; }
 
-	void await_suspend(std::coroutine_handle<> h)
-	{ std::cout << "await suspended" << std::endl; }
+    void await_suspend(std::coroutine_handle<> h)
+    { std::cout << "await suspended" << std::endl; }
 };
 
 struct Promise {
-	struct promise_type {
-		void get_return_object() { 
-		    std::cout << "get return object" << std::endl;
-		}
+    struct promise_type {
+        void get_return_object() { 
+            std::cout << "get return object" << std::endl;
+        }
 
-		std::suspend_never initial_suspend() noexcept {
-			std::cout << "initial suspend, return never" << std::endl;
-			return {};
-		}
+        std::suspend_never initial_suspend() noexcept {
+            std::cout << "initial suspend, return never" << std::endl;
+            return {};
+        }
 
-		std::suspend_never final_suspend() noexcept {
-			std::cout << "final suspend, return never" << std::endl;
-			return {};
-		}
+        std::suspend_never final_suspend() noexcept {
+            std::cout << "final suspend, return never" << std::endl;
+            return {};
+        }
 
-		void unhandled_exception() {
-			std::cout << "unhandle exception" << std::endl;
-			std::terminate();
-		}
+        void unhandled_exception() {
+            std::cout << "unhandle exception" << std::endl;
+            std::terminate();
+        }
 
-		void return_void() {
-			std::cout << "return void" << std::endl;
-			return;
-		}
-	};
+        void return_void() {
+            std::cout << "return void" << std::endl;
+            return;
+        }
+    };
 };
 
 Promise CoroutineFunc() {
-	std::cout << "before co_await" << std::endl;
-	co_await Awaiter();
-	std::cout << "after co_await" << std::endl;
+    std::cout << "before co_await" << std::endl;
+    co_await Awaiter();
+    std::cout << "after co_await" << std::endl;
 }
 
 int main() {
-	std::cout << "main() start" << std::endl;
-	CoroutineFunc();
-	std::cout << "main() exit" << std::endl;
+    std::cout << "main() start" << std::endl;
+    CoroutineFunc();
+    std::cout << "main() exit" << std::endl;
 }
 ```
 上述程式實作了一個 Awaiter，這個也是 Awaitable 的類別，所以可以用 co_await 讓此函數被掛起再恢復，下方就是執行結果
