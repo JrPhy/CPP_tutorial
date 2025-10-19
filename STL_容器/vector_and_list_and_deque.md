@@ -5,8 +5,7 @@
 #include <vector> // 使用時須引入
 #include <iostream>
 using namespace std; // 若不使用則須在 vector 前面加上 std::
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     vector<int> vecInt; // 若無 using namespace std，則為 std::vector<int> vecInt;
     // 宣告一個型別為 int 的 vector，不需要給定大小
     vector<double> vecDou = {10.0, 20.0, 30.0}; // 如同陣列初始化
@@ -47,8 +46,7 @@ erase 傳入和返回**迭帶器**(可以當作一個指標)，所以並不能�
 #include <vector>
 #include <iostream>
 using namespace std;
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     vector<int> vec(2, 9);
     for (int i = 0; i < 4; i++) vec.push_back(i);
     cout << vec.size() << " "; // 此時為 6
@@ -65,8 +63,7 @@ int main(int argc, char* argv[])
 #include <vector>
 #include <iostream>
 using namespace std;
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     vector<int> vec(2, 9);
     for (int i = 0; i < 4; i++) vec.push_back(i);
     for (vector<int>::iterator it = vec.begin(); it != vec.end();) {
@@ -83,8 +80,7 @@ int main(int argc, char* argv[])
 ```cpp
 #include <iostream> 
 #include <vector> 
-int main() 
-{
+int main() {
     // 如同 2 維陣列初始化
     std::vector<std::vector<int> > vec{ { 1, 2, 3, 4}, 
                                         { 5, 6, 7, 8 }, 
@@ -103,6 +99,41 @@ int main()
     return 0; 
 } 
 ```
+## 4. 自製簡易動態陣列
+由上可知 vector 主要是由 capacity 跟 size 來決定是否要擴容，可以利用這兩個變數來自製一個簡單的動態陣列
+```
+template <typename T>
+class DyArr {
+    T* data;
+    int capacity, _size;
+    void resize() {
+        capacity *= 2;
+        T* newData = new T[capacity];
+        for(size_t i = 0; i < _size; i++) {
+            newData[i] = data[i];
+        }
+        delete[] data;
+        data = newData;
+    }
+public:
+    DyArr (int cap = 1) {
+        capacity = cap;
+        _size = 0;
+        data = new T[capacity];
+    }
+    ~DyArr() {delete[] data;}
+
+    void push_back(const T& value) {
+        if (_size == capacity) resize();
+        data[_size++] = value;
+    }
+    T& operator[](size_t index) {
+        if (index >= 0 && index < _size)
+            return data[index];
+        throw out_of_range("Index out of bounds");
+    }
+    int size() const { return _size; }
+};
 ## 2. 列表 LIST
 C++ STL 中的 list 為[雙向 LIST 封裝](https://github.com/JrPhy/DS-AL/blob/master/List_and_Tree/LinkedList-%E9%9B%99%E5%90%91%E9%80%A3%E7%B5%90.md)，所以除了資料本身外，還需要多**兩個指標**來指向前後的節點。與向量不同，列表中每個節點都是新開的指標，所以為**不連續**的記憶體位置，而且一定要從開頭去走訪。而 STL 對於 list 的封裝讓 list 可以像 array 一樣的方式初始化
 ```cpp
