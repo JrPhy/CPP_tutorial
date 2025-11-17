@@ -8,8 +8,7 @@ unique_ptr 顧名思義就是只有一個擁有者，當宣告了一個 Unique_p
 #include <iostream> 
 #include <memory> 
   
-int main()
-{
+int main() {
     std::unique_ptr<int> pInt(new int(5));
     std::unique_ptr<int> pNull{};
     //std::unique_ptr<int> pInt2(pInt);    // 錯誤
@@ -28,12 +27,11 @@ class C {
     // ...
 }
 
-void pass_unique_ptr(std::unique_ptr<C> a, std::unique_ptr<C> b){
+void pass_unique_ptr(std::unique_ptr<C> a, std::unique_ptr<C> b) {
     // ...
 }
   
-int main()
-{
+int main() {
     std::unique_ptr<int> pInt(new MyClass());
     std::unique_ptr<MyClass> pInt1 = std::make_unique<MyClass>(5);
     // 如果第一個 new 失敗那就不會 delte，第二個就不會執行，
@@ -46,8 +44,7 @@ int main()
 當然也可以自行實作，利用回傳一個 unique_ptr 來實現 make_unique。
 ```cpp
 template<typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args&&... args)
-{
+std::unique_ptr<T> make_unique(Args&&... args) {
     return std::unique_ptr<T>( new T(std::forward<Args>(args)...) );
 }
 ```
@@ -64,8 +61,7 @@ void func2(int *b) {
     // ...
 }
 
-unique_ptr<int> ret_unique_ptr()
-{
+unique_ptr<int> ret_unique_ptr() {
     return std::make_unique<int>(5)
 }
 
@@ -107,8 +103,7 @@ int main() {
 #include <iostream> 
 #include <memory> 
   
-int main()
-{
+int main() {
     std::shared_ptr<int> pInt(new int(5));
     std::shared_ptr<int> pInt2(pInt);
     std::shared_ptr<int> pInt3 = pInt;
@@ -126,20 +121,19 @@ int main()
 #include<iostream>
 #include<memory>
 class B;
-class A{
+class A {
    public:
     A()  { std::cout << "A" << std::endl; }
     ~A() { std::cout << "delete A" << std::endl; }
     std::shared_ptr<B> a_;
 };
-class B{
+class B {
    public:
     B()  { std::cout << "B" << std::endl; }
     ~B() { std::cout << "delete B" << std::endl; }
     std::shared_ptr<A> b_;
 };
-int main()
-{
+int main() {
     std::shared_ptr<A> a = std::make_shared<A>();
     std::shared_ptr<B> b = std::make_shared<B>();
     {
