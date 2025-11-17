@@ -16,12 +16,11 @@ C++ 中的繼承總共有三種，分別是公有繼承(public base)、私有繼
 #### 2. 公有繼承
 ```cpp
 #include<iostream>
-class base
-{
+class base {
     int b;
    public:
     int a;
-    base(int c, int b){ 
+    base(int c, int b) { 
         this->a = c; this->b = b; 
         std::cout << "base construct, in base a = " << a << std::endl;
     }
@@ -32,15 +31,13 @@ class base
     ~base() { std::cout << "base destruct" << std::endl; }
 };
 
-class derived: public base
-{
+class derived: public base {
    public:
     derived(int c):base(c) { std::cout << "derived construct, in derived a = "<< a << std::endl; }
     ~derived() { std::cout << "derived destruct" << std::endl; }
 };
 
-int main()
-{
+int main() {
     base b1(7, 8);
     // 初始化 base 中的 a, b 並印出 base construct, in base a = 7
     derived a1(1000.8989898989);
@@ -178,3 +175,4 @@ int square(int num) {return num * num;}
 float square(float num) {return num * num;}
 // _Z6squaref
 ```
+編譯器主要靠引數來判斷是否為兩個不同的函數，若引數數量相同但型別不同則會生成多個不同的函數名．而若僅有回傳值型別不同，則會被當成兩個完全相同的函數，就會編譯報錯．
