@@ -4,7 +4,7 @@ C++ 的 class 除了封裝以外，還有繼承的語法。在寫物件導向程
 另一種說法就是基類跟派生類。如果要做一個車子展示的頁面，車子會先有共同的部分，例如顏色、排氣量、廠牌、年份跟油電等，那麼就可以有個基類 car，剩下功能例如導航、天窗、敞篷這種並非都有的，就可以在繼承的子類別再去實作。這邊就先用最基本的父類與子類做演。\
 
 #### 1. 繼承方式與成員關係
-在[class_封裝](https://github.com/JrPhy/CPP_tutorial/blob/main/class_%E5%B0%81%E8%A3%9D.md)中提到**成員**有公有和私有，但在繼承關係中還有受保護的(protected)跟好友(friend)，對於子類中的成員會有不同的效果。以可見度來說：public > protected > friend > private。\
+在[class_封裝](https://github.com/JrPhy/CPP_tutorial/blob/main/class_%E5%B0%81%E8%A3%9D_public_private.md)中提到**成員**有公有和私有，但在繼承關係中還有受保護的(protected)跟好友(friend)，對於子類中的成員會有不同的效果。以可見度來說：public > protected > friend > private。\
 C++ 中的繼承總共有三種，分別是公有繼承(public base)、私有繼承(private base)與受保護的繼承(protected base)。所以從繼承關係與成員宣告，一共會有 12 種組合
 |   | 父類 public 成員 | 父類 private 成員 | 父類 protected 成員 |
 | --- | --- | --- | --- |
