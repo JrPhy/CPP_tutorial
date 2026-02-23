@@ -113,9 +113,12 @@ int main() {
     int a = 5;
     float b = 5.5;
     p.print(a);
+    p.print();  // derived
+    p.base::print();  // base
     return 0;
 }
 ```
+上述例子中雖然父類跟子類都有 ```print()```，但是呼叫 ```p.print()``` 結果是 derived，因為 p 是 derived 類型。```p.base::print()```則是父類中的，是因為這在編譯階段就已經知道要呼叫哪個，稱為***靜態綁定 (static binding)***。
 #### 1. override
 override 在 C++11 為一個關鍵字，用了此關鍵字就會由編譯器提醒開發者是否有正確覆寫父類的函數。因為 virtual 並不強迫一定要覆寫，而 override 則是一定要覆寫，而且若名字或是引數錯誤，也會藉由編譯器提醒。
 ```cpp
