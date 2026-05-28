@@ -9,8 +9,7 @@ struct sT {
     int val;
 };
 
-int main()
-{
+int main() {
     cT t1;
     sT t2;
     t1.val = 10; // error: ‘int cT::val’ is private within this context
@@ -33,8 +32,7 @@ class Student {
 ```
 如果在 class 中有多個 private 跟 public，那麼在 private ~ public 中的成員為 private，public ~ private 中的成員為 public，private/public ~ } 中的成員為 private/public。
 ```cpp
-class Student  // class declaration
-{
+class Student { // class declaration
    private:
     私有成員
    public:
@@ -78,8 +76,7 @@ void Stock::show() {
 ```
 在 class 外實作時，需要在前面加上 className::。雙冒號 :: 在 C++ 中為告訴編譯器該成員是屬於哪個 class。若為 public 成員，有實作後就可以直接在 main 裡面做使用
 ```cpp
-int main()
-{
+int main() {
     Student Mary;
     Mary.show();
 }
@@ -106,8 +103,7 @@ class Teacher {
     std::string name;
 };
 
-int main()
-{
+int main() {
     Student Mary, John;
     Mary.ID = 1;
     John.ID = 2;
@@ -157,8 +153,7 @@ class Student {
 Student::Student(int _id, int _gender, std::string _name, double _score)
         :ID(_id), gender(_gender), name(_name), score(_score) {}
 
-int main()
-{
+int main() {
     Student Peter(10039, 0, "Peter", 88.88);
     Peter.get();
     return 0;
@@ -181,8 +176,7 @@ class Student {
 Student::Student(int _id, int _gender, std::string _name, double _score)
         :gender(_gender), ID(_id),  name(_name), score(_score) {}
 
-int main()
-{
+int main() {
     Student Peter(10039, 1, "Peter", 88.88);
     Peter.get();
     return 0;
@@ -209,8 +203,7 @@ class Student {
 Student::Student(int _id, int _gender, std::string _name, double _score)
         :gender(_gender), ID(_id), name(_name), score(_score) {}
 
-int main()
-{
+int main() {
     Student Peter(10039, 1, "Peter", 88.88);
     Peter.get();
     Peter.setScore(95.8);
@@ -242,8 +235,7 @@ Student::Student(int _id, int _gender, std::string _name, double _score)
     rank = new int;
 }
 
-int main()
-{
+int main() {
     Student Peter(10039, 1, "Peter", 88.88);
     Peter.get();
     Peter.SetRank(2);
