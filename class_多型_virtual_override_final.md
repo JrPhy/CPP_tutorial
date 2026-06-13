@@ -49,8 +49,7 @@ class Matrix {
     int mat[2][3] = {0};
 };
 
-Matrix operator+(Matrix &a,Matrix &b) // "+" 重載實作
-{
+Matrix operator+(Matrix &a,Matrix &b) {// "+" 重載實作
     Matrix c;
     for(int i = 0; i < 2; i++) {
         for(int j = 0; j < 3; j++) {
@@ -128,7 +127,7 @@ class base {
     virtual void f2();
     void f3();
 };
-calss derived:public base{
+class derived:public base{
    public:
     void f1(int) const override; //正確
     void f2(int) override;       //錯誤，引數不同
@@ -220,15 +219,14 @@ class base {
     virtual void f2() final { return 1; };
     void f3();
 };
-calss derived:public base{
+calss derived:public base {
     void f1(int) const override; //正確
     void f2() { return 2; };     //錯誤，無法覆寫
 };
 ```
 這兩個關鍵字讓開發者避免無心錯誤，算是非常好用。當然 virtual 和 override 與 final 三者是可以同時使用的。即告訴使用者該函數有可能被別的類別繼承，且是從父類別繼承並覆寫來的，並無法給他的子類別覆寫。
 ```cpp
-class Drived : public Base
-{
+class Drived : public Base {
 public:
     void A_1() { printf("Drived::A_1\n"); };
     //覆寫了父類別的函數，用父類別指標呼叫時呼叫到的時父類別的A_1，用子類別指標呼叫時呼叫到的時子類別的A_1
